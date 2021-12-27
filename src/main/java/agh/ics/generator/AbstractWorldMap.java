@@ -1,14 +1,11 @@
 package agh.ics.generator;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Random;
+import java.util.*;
 
 public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver{
-    protected final LinkedHashMap<Vector2d, AbstractWorldMapElement> elementsOnMap = new LinkedHashMap<>();
+    protected final HashMap<Vector2d, List<AbstractWorldMapElement>> elementsOnMap = new HashMap<>();
     protected Vector2d lowerLeft = new Vector2d(0, 0);
-    protected Vector2d upperRight = new Vector2d(10, 10);
-    protected int numberGrasses = 1;
+    protected Vector2d upperRight = new Vector2d(3, 3);
     protected double jungleRatio;
     protected HashSet<Vector2d> possibleStepPositions = new HashSet<>();
     protected HashSet<Vector2d> possibleJunglePositions = new HashSet<>();
@@ -68,7 +65,14 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     @Override
     public boolean place(Animal animal) {
         if(canMoveTo(animal.getPosition())){
-            this.elementsOnMap.put(animal.getPosition(),animal);
+
+            if(this.elementsOnMap.containsKey(animal.getPosition())){
+                this.elementsOnMap.get(animal.getPosition()).add(animal);
+            }else{
+                this.elementsOnMap.put(animal.getPosition(), new ArrayList<>(List.of(animal)));
+            }
+
+
             if (checkPointInJungle(animal.getPosition().x,animal.getPosition().y))
             {
                 this.possibleJunglePositions.remove(animal.getPosition());
@@ -90,15 +94,35 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
     @Override
     public AbstractWorldMapElement objectAt(Vector2d position) {
-        return this.elementsOnMap.get(position);
+        if(this.elementsOnMap.get(position) != null){
+            return this.elementsOnMap.get(position).get(0);
+        }else{
+            return null;
+        }
     }
 
     @Override
-    public void positionChanged(Vector2d oldPosition, Vector2d newPosition) {
+    public void positionChanged(Vector2d oldPosition, Vector2d newPosition,Animal animal) {
         AbstractWorldMapElement object = objectAt(oldPosition);
-        if (object instanceof Animal) {
-            this.elementsOnMap.remove(oldPosition, object);
-            this.elementsOnMap.put(newPosition, object);
+
+        if(canMoveTo(newPosition)) {
+            if (object instanceof Animal) {
+                System.out.println();
+                if(this.elementsOnMap.containsKey(oldPosition) && this.elementsOnMap.get(oldPosition).size() == 1){
+                    this.elementsOnMap.remove(oldPosition);
+                }else{
+                    this.elementsOnMap.get(oldPosition).remove(animal);
+                }
+
+                if (this.elementsOnMap.containsKey(newPosition)) {
+                    this.elementsOnMap.get(newPosition).add(animal);
+                }
+                else {
+                    this.elementsOnMap.put(newPosition, new ArrayList<>(List.of(animal)));
+                }
+
+
+            }
         }
     }
 
@@ -111,13 +135,25 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     public void generateGrass(){
         if (this.possibleJunglePositions.size() > 0) {
             Vector2d jungleGrassPosition = getRandom(this.possibleJunglePositions);
-            this.elementsOnMap.put(jungleGrassPosition,new Grass(jungleGrassPosition));
+
+            if(this.elementsOnMap.containsKey(jungleGrassPosition)){
+                this.elementsOnMap.get(jungleGrassPosition).add(new Grass(jungleGrassPosition));
+            }else{
+                this.elementsOnMap.put(jungleGrassPosition, Collections.singletonList(new Grass(jungleGrassPosition)));
+            }
+
             this.possibleJunglePositions.remove(jungleGrassPosition);
         }
 
         if(this.possibleStepPositions.size() > 0){
             Vector2d stepGrassPosition = getRandom(this.possibleStepPositions);
-            this.elementsOnMap.put(stepGrassPosition,new Grass(stepGrassPosition));
+
+            if(this.elementsOnMap.containsKey(stepGrassPosition)){
+                this.elementsOnMap.get(stepGrassPosition).add(new Grass(stepGrassPosition));
+            }else{
+                this.elementsOnMap.put(stepGrassPosition, Collections.singletonList(new Grass(stepGrassPosition)));
+            }
+
             this.possibleStepPositions.remove(stepGrassPosition);
         }
     }

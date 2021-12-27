@@ -11,7 +11,7 @@ public class SimulationEngine implements IEngine, Runnable{
     private final List<Animal> animalsOnWrappedMap;
     private final List<Animal> animalsOnBoundedMap;
     private final List<IAnimalMoveObserver> observers = new ArrayList<>();
-    private final int moveDelay = 300;
+    private final int moveDelay = 600;
 
 
     public List<Animal> getAnimalsOnWrappedMap() {
@@ -44,13 +44,12 @@ public class SimulationEngine implements IEngine, Runnable{
         for(Vector2d vector2d: positions){
             Animal animalOnWrappedMap = new Animal(this.wrappedMap,vector2d,100);
             Animal animalOnBoundedMap = new Animal(this.boundedMap,vector2d,100);
-            animalOnWrappedMap.addObserver(this.wrappedMap);
             this.wrappedMap.place(animalOnWrappedMap);
             this.animalsOnWrappedMap.add(animalOnWrappedMap);
-            animalOnBoundedMap.addObserver(this.boundedMap);
             this.boundedMap.place(animalOnBoundedMap);
             this.animalsOnBoundedMap.add(animalOnBoundedMap);
             }
+
         }
 
     public void simulationEpoch(){
@@ -70,11 +69,11 @@ public class SimulationEngine implements IEngine, Runnable{
 
         while(true){
             simulationEpoch();
+
             for(int i = 0;i < size2; i++){
                 this.animalsOnBoundedMap.get(i).move();
                 this.animalsOnWrappedMap.get(i).move();
             }
-
             for(IAnimalMoveObserver observer : this.observers) {
                 observer.animalMove();
             }

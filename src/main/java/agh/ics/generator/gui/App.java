@@ -37,7 +37,7 @@ public class App extends Application implements IAnimalMoveObserver {
     @Override
     public void init() throws Exception {
         try {
-            List<Vector2d> positions = new ArrayList<>(Arrays.asList(new Vector2d(1, 1), new Vector2d(3, 4)));
+            List<Vector2d> positions = new ArrayList<>(Arrays.asList(new Vector2d(1, 1), new Vector2d(1, 1)));
             this.wrappedMap = new WrappedGrassField(0.2);
             this.boundedMap = new BoundedGrassField(0.2);
             SimulationEngine engine = new SimulationEngine(this.wrappedMap,this.boundedMap, positions);

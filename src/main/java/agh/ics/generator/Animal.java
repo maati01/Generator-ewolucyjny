@@ -121,9 +121,10 @@ public class Animal extends AbstractWorldMapElement {
                     newPosition = boundedNewPosition(this.position.add(this.vector.toUnitVector()));
                 }
 
-                positionChanged(this.position, newPosition);
+                positionChanged(this.position, newPosition,this);
 
                 this.position = newPosition;
+
 
             }
             case 4 -> {
@@ -133,12 +134,15 @@ public class Animal extends AbstractWorldMapElement {
                 else{
                     newPosition = boundedNewPosition(this.position.add(this.vector.toUnitVector().opposite()));
                 }
-                positionChanged(this.position, newPosition);
-
+                positionChanged(this.position, newPosition,this);
 
                 this.position = newPosition;
+
             }
-            default -> this.vector = this.vector.directionForIndex(move);
+            default -> {
+                this.vector = this.vector.directionForIndex(move);
+
+            }
         }
         dayCounter += 1;
         if(dayCounter == 31){
@@ -157,16 +161,17 @@ public class Animal extends AbstractWorldMapElement {
     //TODO
     //w tej petli trzeba raczej zrobic funkcje
 
-    void positionChanged(Vector2d oldPosition, Vector2d newPosition){
-        for (IPositionChangeObserver observer : this.observers)
-            observer.positionChanged(oldPosition, newPosition);
+    void positionChanged(Vector2d oldPosition, Vector2d newPosition, Animal animal){
+        for (IPositionChangeObserver observer : this.observers){
+            observer.positionChanged(oldPosition, newPosition, animal);
 
-            if(oldPosition.x >= this.map.jungleLowerLeft.x && oldPosition.x <= this.map.jungleUpperRight.x
-                    && oldPosition.y >= this.map.jungleLowerLeft.y && oldPosition.y <= this.map.jungleUpperRight.y){
-                this.map.possibleJunglePositions.add(new Vector2d(oldPosition.x,oldPosition.y));
-            }
-            else{
-                this.map.possibleStepPositions.add(new Vector2d(oldPosition.x,oldPosition.y));
+            if(this.map.elementsOnMap.containsKey(oldPosition) && this.map.elementsOnMap.get(oldPosition).size() > 1) {
+                if (oldPosition.x >= this.map.jungleLowerLeft.x && oldPosition.x <= this.map.jungleUpperRight.x
+                        && oldPosition.y >= this.map.jungleLowerLeft.y && oldPosition.y <= this.map.jungleUpperRight.y) {
+                    this.map.possibleJunglePositions.add(new Vector2d(oldPosition.x, oldPosition.y));
+                } else {
+                    this.map.possibleStepPositions.add(new Vector2d(oldPosition.x, oldPosition.y));
+                }
             }
             if(newPosition.x >= this.map.jungleLowerLeft.x && newPosition.x <= this.map.jungleUpperRight.x
                 && newPosition.y >= this.map.jungleLowerLeft.y && newPosition.y <= this.map.jungleUpperRight.y){
@@ -175,5 +180,6 @@ public class Animal extends AbstractWorldMapElement {
             else{
                 this.map.possibleStepPositions.remove(new Vector2d(newPosition.x,newPosition.y));
             }
+
     }
-}
+}}
