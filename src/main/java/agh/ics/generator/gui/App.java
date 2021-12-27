@@ -24,17 +24,23 @@ public class App extends Application implements IAnimalMoveObserver {
     Thread simulationEngineThread;
     int screenWidth = 2000;
     int screenHeight = 1000;
-    int fieldWidth = 40;
-    int fieldHeight = 40;
+    int mapWidth = 20;
+    int mapHeight = 30;
+    int fieldWidth = (int) Math.ceil(screenWidth/(mapWidth*2 + 1));
+    int fieldHeight = fieldWidth;
 
 
+    //TODO
+    //przekazywac do silnika dwie mapy
+    //problem z rysowaniem obiektów
 
     @Override
     public void init() throws Exception {
         try {
             List<Vector2d> positions = new ArrayList<>(Arrays.asList(new Vector2d(1, 1), new Vector2d(3, 4)));
-            this.wrappedMap = new WrappedGrassField(10);
-            SimulationEngine engine = new SimulationEngine(this.wrappedMap, positions);
+            this.wrappedMap = new WrappedGrassField(0.2);
+            this.boundedMap = new BoundedGrassField(0.2);
+            SimulationEngine engine = new SimulationEngine(this.wrappedMap,this.boundedMap, positions);
             this.simulationEngineThread = new Thread(engine);
             engine.addObserver(this);
             simulationEngineThread.start();
@@ -92,8 +98,8 @@ public class App extends Application implements IAnimalMoveObserver {
 
     public void drawObjectOnWrappedMap(Vector2d vector,int i,int j){
         AbstractWorldMapElement object = this.wrappedMap.objectAt(vector);
-        GuiElementBox guiElement = new GuiElementBox(object);
         if(object != null) {
+            GuiElementBox guiElement = new GuiElementBox(object);
             try {
                 this.gridPane.add(guiElement.getImage(), i, this.wrappedMap.getUpperRight().y - this.wrappedMap.getLowerLeft().y - j);
             } catch (FileNotFoundException e) {
@@ -103,9 +109,9 @@ public class App extends Application implements IAnimalMoveObserver {
     }
 
     public void drawObjectOnBoundedMap(Vector2d vector,int i,int j){
-        AbstractWorldMapElement object = this.wrappedMap.objectAt(vector);
-        GuiElementBox guiElement = new GuiElementBox(object);
+        AbstractWorldMapElement object = this.boundedMap.objectAt(vector);
         if(object != null) {
+            GuiElementBox guiElement = new GuiElementBox(object);
             try {
                 this.gridPane.add(guiElement.getImage(), this.wrappedMap.getUpperRight().x - this.wrappedMap.getLowerLeft().x + i + 2,
                         this.wrappedMap.getUpperRight().y - this.wrappedMap.getLowerLeft().y - j);

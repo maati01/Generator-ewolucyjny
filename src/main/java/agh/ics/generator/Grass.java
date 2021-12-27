@@ -21,6 +21,6 @@ public class Grass extends AbstractWorldMapElement {
     }
 
     public String toStringInGui(){
-        return "Grass";
+        return null;
     }
 }

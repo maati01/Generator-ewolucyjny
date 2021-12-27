@@ -15,6 +15,10 @@ public class Animal extends AbstractWorldMapElement {
     private int dayCounter = 0;
     Random random = new Random();
 
+
+    //TODO
+    //sprawdzac gdzie dodawac pozycje po position change
+
     public Animal(AbstractWorldMap map, int energy) {
         this.map = map;
         this.energy = energy;
@@ -69,13 +73,13 @@ public class Animal extends AbstractWorldMapElement {
         if(x < minX){
             x = maxX;
         }
-        else if(y < minY){
+        if(y < minY){
             y = maxY;
         }
-        else if(x > maxX){
+        if(x > maxX){
             x = minX;
         }
-        else if(y > maxY){
+        if(y > maxY){
             y = minY;
         }
         return new Vector2d(x,y);
@@ -88,16 +92,17 @@ public class Animal extends AbstractWorldMapElement {
         int minY = this.map.getLowerLeft().y;
         int maxX = this.map.getUpperRight().x;
         int maxY = this.map.getUpperRight().y;
+
         if(x < minX){
             x = minX;
         }
-        else if(y < minY) {
+        if(y < minY) {
             y = minY;
         }
-        else if(x > maxX) {
+        if(x > maxX) {
             x = maxX;
         }
-        else if(y > maxY){
+        if(y > maxY){
             y = maxY;
         }
         return new Vector2d(x,y);
@@ -106,8 +111,6 @@ public class Animal extends AbstractWorldMapElement {
     public void move(){
         int move = (genes.get(dayCounter) + this.vector.indexForDirection())%7;
         Vector2d newPosition;
-        System.out.println(move);
-        System.out.println(this.genes);
 
         switch (genes.get(dayCounter)){
             case 0 -> {
@@ -119,6 +122,7 @@ public class Animal extends AbstractWorldMapElement {
                 }
 
                 positionChanged(this.position, newPosition);
+
                 this.position = newPosition;
 
             }
@@ -130,6 +134,8 @@ public class Animal extends AbstractWorldMapElement {
                     newPosition = boundedNewPosition(this.position.add(this.vector.toUnitVector().opposite()));
                 }
                 positionChanged(this.position, newPosition);
+
+
                 this.position = newPosition;
             }
             default -> this.vector = this.vector.directionForIndex(move);
@@ -148,8 +154,26 @@ public class Animal extends AbstractWorldMapElement {
         this.observers.remove(observer);
     }
 
+    //TODO
+    //w tej petli trzeba raczej zrobic funkcje
+
     void positionChanged(Vector2d oldPosition, Vector2d newPosition){
         for (IPositionChangeObserver observer : this.observers)
             observer.positionChanged(oldPosition, newPosition);
+
+            if(oldPosition.x >= this.map.jungleLowerLeft.x && oldPosition.x <= this.map.jungleUpperRight.x
+                    && oldPosition.y >= this.map.jungleLowerLeft.y && oldPosition.y <= this.map.jungleUpperRight.y){
+                this.map.possibleJunglePositions.add(new Vector2d(oldPosition.x,oldPosition.y));
+            }
+            else{
+                this.map.possibleStepPositions.add(new Vector2d(oldPosition.x,oldPosition.y));
+            }
+            if(newPosition.x >= this.map.jungleLowerLeft.x && newPosition.x <= this.map.jungleUpperRight.x
+                && newPosition.y >= this.map.jungleLowerLeft.y && newPosition.y <= this.map.jungleUpperRight.y){
+                this.map.possibleJunglePositions.remove(new Vector2d(newPosition.x,newPosition.y));
+            }
+            else{
+                this.map.possibleStepPositions.remove(new Vector2d(newPosition.x,newPosition.y));
+            }
     }
 }
