@@ -1,6 +1,8 @@
 package agh.ics.generator;
 
-public class BoundedGrassField extends AbstractWorldMap implements IWorldMap{
+import agh.ics.generator.interfaces.IWorldMap;
+
+public class BoundedGrassField extends AbstractWorldMap implements IWorldMap {
     public BoundedGrassField(double jungleRatio){
         super(jungleRatio);
     }

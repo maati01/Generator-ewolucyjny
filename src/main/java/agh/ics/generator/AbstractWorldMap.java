@@ -1,8 +1,11 @@
 package agh.ics.generator;
 
+import agh.ics.generator.interfaces.IPositionChangeObserver;
+import agh.ics.generator.interfaces.IWorldMap;
+
 import java.util.*;
 
-public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver{
+public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver {
     protected final HashMap<Vector2d, List<AbstractWorldMapElement>> elementsOnMap = new HashMap<>();
     protected final HashMap<Vector2d, List<Animal>> animalsOnMap = new HashMap<>();
     protected final HashMap<Vector2d, Grass> grassOnMap = new HashMap<>();
@@ -25,6 +28,15 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         findStepAndJunglePositions();
     }
 
+    public List<Animal> getAnimalsOnMap(){
+        List<Animal> animalsOnMapList = new ArrayList<>();
+
+        for(List<Animal> animals : this.animalsOnMap.values()){
+            animalsOnMapList.addAll(animals);
+        }
+
+        return animalsOnMapList;
+    }
     public void findJungleCorners(){
         int a = lowerLeft.x + (int) Math.floor(Math.sqrt(jungleRatio)*rangeX);
         int b = lowerLeft.y + (int) Math.floor(Math.sqrt(jungleRatio)*rangeY);
@@ -84,8 +96,6 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             else{
                 this.possibleStepPositions.remove(animal.getPosition());
             }
-
-
             return true;
         }
         throw new IllegalArgumentException("Position " + animal.getPosition() + " is wrong. Here is another animal.");
@@ -113,18 +123,29 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             if (object instanceof Animal) {
                 if(this.elementsOnMap.containsKey(oldPosition) && this.elementsOnMap.get(oldPosition).size() == 1){
                     this.elementsOnMap.remove(oldPosition);
-                    this.animalsOnMap.remove(oldPosition);
+
                 }else{
                     this.elementsOnMap.get(oldPosition).remove(animal);
+                }
+
+                if(this.animalsOnMap.containsKey(oldPosition) && this.animalsOnMap.get(oldPosition).size() == 1){
+                    this.animalsOnMap.remove(oldPosition);
+                }else{
                     this.animalsOnMap.get(oldPosition).remove(animal);
                 }
 
                 if (this.elementsOnMap.containsKey(newPosition)) {
                     this.elementsOnMap.get(newPosition).add(animal);
-                    this.animalsOnMap.get(newPosition).add(animal);
+
                 }
                 else {
                     this.elementsOnMap.put(newPosition, new ArrayList<>(List.of(animal)));
+
+                }
+                if( this.animalsOnMap.containsKey(newPosition)){
+                    this.animalsOnMap.get(newPosition).add(animal);
+                }
+                else{
                     this.animalsOnMap.put(newPosition, new ArrayList<>(List.of(animal)));
                 }
             }
@@ -186,5 +207,4 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     public Grass getGrassOnMap(Vector2d vector2d){
         return this.grassOnMap.getOrDefault(vector2d, null);
     }
-
 }

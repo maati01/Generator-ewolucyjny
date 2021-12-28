@@ -2,6 +2,7 @@ package agh.ics.generator.gui;
 
 
 import agh.ics.generator.*;
+import agh.ics.generator.interfaces.IAnimalMoveObserver;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;

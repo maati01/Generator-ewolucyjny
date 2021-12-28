@@ -1,5 +1,8 @@
 package agh.ics.generator;
 
+import agh.ics.generator.interfaces.IAnimalMoveObserver;
+import agh.ics.generator.interfaces.IEngine;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -9,10 +12,12 @@ public class SimulationEngine implements IEngine, Runnable{
     protected List<MoveDirection> moves;
     private final AbstractWorldMap wrappedMap;
     private final AbstractWorldMap boundedMap;
-    private final List<Animal> animalsOnWrappedMap;
-    private final List<Animal> animalsOnBoundedMap;
+    private List<Animal> animalsOnWrappedMap;
+    private List<Animal> animalsOnBoundedMap;
     private final List<IAnimalMoveObserver> observers = new ArrayList<>();
-    private final int moveDelay = 200;
+    private final int moveDelay = 300;
+    private final Reproduction reproductionAnimalsOnWrappedMap;
+    private final Reproduction reproductionAnimalsOnBoundedMap;
 
 
     public List<Animal> getAnimalsOnWrappedMap() {
@@ -41,6 +46,8 @@ public class SimulationEngine implements IEngine, Runnable{
         this.boundedMap = boundedMap;
         this.animalsOnWrappedMap = new ArrayList<>();
         this.animalsOnBoundedMap = new ArrayList<>();
+        this.reproductionAnimalsOnBoundedMap = new Reproduction(this.boundedMap);
+        this.reproductionAnimalsOnWrappedMap = new Reproduction(this.wrappedMap);
 
         for(Vector2d vector2d: positions){
             Animal animalOnWrappedMap = new Animal(this.wrappedMap,vector2d,10);
@@ -76,7 +83,7 @@ public class SimulationEngine implements IEngine, Runnable{
                 return Integer.compare(o2.getEnergy(),o1.getEnergy());
             });
 
-            if(map.grassOnMap.containsKey(vector2d)){
+            if(map.grassOnMap.containsKey(vector2d) && !map.animalsOnMap.get(vector2d).isEmpty()){
                 List<Animal> animals = findAnimalsThatEatGrass(map.animalsOnMap.get(vector2d));
                 int energyPortion = map.grassOnMap.get(vector2d).getEnergy()/animals.size();
 
@@ -114,6 +121,10 @@ public class SimulationEngine implements IEngine, Runnable{
         eatGrass(this.wrappedMap);
         removeAnimalsFromMap(this.boundedMap);
         removeAnimalsFromMap(this.wrappedMap);
+        reproductionAnimalsOnWrappedMap.createChildren(this.animalsOnWrappedMap);
+        reproductionAnimalsOnBoundedMap.createChildren(this.animalsOnBoundedMap);
+        this.animalsOnWrappedMap = this.wrappedMap.getAnimalsOnMap();
+        this.animalsOnBoundedMap = this.boundedMap.getAnimalsOnMap();
     }
 
     @Override

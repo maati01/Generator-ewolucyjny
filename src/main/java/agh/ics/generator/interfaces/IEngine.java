@@ -1,4 +1,4 @@
-package agh.ics.generator;
+package agh.ics.generator.interfaces;
 
 /**
  * The interface responsible for managing the moves of the animals.

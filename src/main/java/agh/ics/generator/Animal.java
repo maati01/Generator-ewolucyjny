@@ -1,5 +1,7 @@
 package agh.ics.generator;
 
+import agh.ics.generator.interfaces.IPositionChangeObserver;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -17,12 +19,12 @@ public class Animal extends AbstractWorldMapElement {
 
     //TODO
     //sprawdzac gdzie dodawac pozycje po position change
+    //uzyc tutaj klasy genotyp
 
-    public Animal(AbstractWorldMap map, int energy) {
+    public Animal(AbstractWorldMap map, int energy,Genotype genotype) {
         this.map = map;
         this.energy = energy;
-        this.genes =  random.ints(32, 0, 7).boxed().sorted()
-                .collect(Collectors.toList());
+        this.genes = genotype.getGenotype();
         this.addObserver(this.map);
     }
 
@@ -33,6 +35,10 @@ public class Animal extends AbstractWorldMapElement {
         this.genes =  random.ints(32, 0, 7).boxed().sorted()
                 .collect(Collectors.toList());
         this.addObserver(this.map);
+    }
+
+    public List<Integer> getGenes(){
+        return this.genes;
     }
 
     public MapDirection getOrientation() {

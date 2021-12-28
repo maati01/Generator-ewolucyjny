@@ -1,4 +1,7 @@
-package agh.ics.generator;
+package agh.ics.generator.interfaces;
+
+import agh.ics.generator.Animal;
+import agh.ics.generator.Vector2d;
 
 /**
  * The interface responsible for interacting with the map of the world.
