@@ -8,10 +8,9 @@ import java.util.stream.Collectors;
 public class Animal extends AbstractWorldMapElement {
     private MapDirection vector = MapDirection.NORTH;
     private Vector2d position = new Vector2d(2,2);
-    private AbstractWorldMap map;
+    private final AbstractWorldMap map;
     private final List<IPositionChangeObserver> observers = new ArrayList<>();
-    private int energy;
-    private List<Integer> genes;
+    private final List<Integer> genes;
     private int dayCounter = 0;
     Random random = new Random();
 
@@ -108,10 +107,17 @@ public class Animal extends AbstractWorldMapElement {
         return new Vector2d(x,y);
     }
 
+    public void addEnergy(int energyPortion){
+        this.energy += energyPortion;
+    }
+
+    public void updateEnergy(){
+        this.energy -= 1;
+    }
+
     public void move(){
         int move = (genes.get(dayCounter) + this.vector.indexForDirection())%7;
         Vector2d newPosition;
-
         switch (genes.get(dayCounter)){
             case 0 -> {
                 if(this.map instanceof WrappedGrassField) {
@@ -139,15 +145,14 @@ public class Animal extends AbstractWorldMapElement {
                 this.position = newPosition;
 
             }
-            default -> {
-                this.vector = this.vector.directionForIndex(move);
+            default -> this.vector = this.vector.directionForIndex(move);
 
-            }
         }
         dayCounter += 1;
         if(dayCounter == 31){
             dayCounter = 0;
         }
+        updateEnergy();
     }
 
     void addObserver(IPositionChangeObserver observer){

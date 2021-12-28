@@ -97,7 +97,15 @@ public class App extends Application implements IAnimalMoveObserver {
     }
 
     public void drawObjectOnWrappedMap(Vector2d vector,int i,int j){
-        AbstractWorldMapElement object = this.wrappedMap.objectAt(vector);
+        AbstractWorldMapElement object;
+        if(this.wrappedMap.getAnimalOnMap(vector) != null){
+            object = this.wrappedMap.getAnimalOnMap(vector);
+        }else if(this.wrappedMap.getGrassOnMap(vector) != null){
+            object = this.wrappedMap.getGrassOnMap(vector);
+        }else{
+            object = null;
+        }
+
         if(object != null) {
             GuiElementBox guiElement = new GuiElementBox(object);
             try {
@@ -109,7 +117,15 @@ public class App extends Application implements IAnimalMoveObserver {
     }
 
     public void drawObjectOnBoundedMap(Vector2d vector,int i,int j){
-        AbstractWorldMapElement object = this.boundedMap.objectAt(vector);
+        AbstractWorldMapElement object;
+        if(this.boundedMap.getAnimalOnMap(vector) != null){
+            object = this.boundedMap.getAnimalOnMap(vector);
+        }else if(this.boundedMap.getGrassOnMap(vector) != null){
+            object = this.boundedMap.getGrassOnMap(vector);
+        }else{
+            object = null;
+        }
+
         if(object != null) {
             GuiElementBox guiElement = new GuiElementBox(object);
             try {

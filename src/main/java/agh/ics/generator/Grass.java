@@ -2,14 +2,17 @@ package agh.ics.generator;
 
 public class Grass extends AbstractWorldMapElement {
     private final Vector2d position;
+    private final int energy = 13;
 
     public Grass(Vector2d position){
         this.position = position;
+
     }
 
     public Vector2d getPosition() {
         return position;
     }
+
 
     @Override
     public String getImagePath() {

@@ -4,8 +4,10 @@ import java.util.*;
 
 public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver{
     protected final HashMap<Vector2d, List<AbstractWorldMapElement>> elementsOnMap = new HashMap<>();
+    protected final HashMap<Vector2d, List<Animal>> animalsOnMap = new HashMap<>();
+    protected final HashMap<Vector2d, Grass> grassOnMap = new HashMap<>();
     protected Vector2d lowerLeft = new Vector2d(0, 0);
-    protected Vector2d upperRight = new Vector2d(3, 3);
+    protected Vector2d upperRight = new Vector2d(10, 10);
     protected double jungleRatio;
     protected HashSet<Vector2d> possibleStepPositions = new HashSet<>();
     protected HashSet<Vector2d> possibleJunglePositions = new HashSet<>();
@@ -56,7 +58,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     @Override
     public boolean canMoveTo(Vector2d position) {
         AbstractWorldMapElement object = objectAt(position);
-        if (object instanceof Grass) {
+        if(object instanceof Grass){
             this.elementsOnMap.remove(position);
         }
         return true;
@@ -68,8 +70,10 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
             if(this.elementsOnMap.containsKey(animal.getPosition())){
                 this.elementsOnMap.get(animal.getPosition()).add(animal);
+                this.animalsOnMap.get(animal.getPosition()).add(animal);
             }else{
                 this.elementsOnMap.put(animal.getPosition(), new ArrayList<>(List.of(animal)));
+                this.animalsOnMap.put(animal.getPosition(), new ArrayList<>(List.of(animal)));
             }
 
 
@@ -107,21 +111,22 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
         if(canMoveTo(newPosition)) {
             if (object instanceof Animal) {
-                System.out.println();
                 if(this.elementsOnMap.containsKey(oldPosition) && this.elementsOnMap.get(oldPosition).size() == 1){
                     this.elementsOnMap.remove(oldPosition);
+                    this.animalsOnMap.remove(oldPosition);
                 }else{
                     this.elementsOnMap.get(oldPosition).remove(animal);
+                    this.animalsOnMap.get(oldPosition).remove(animal);
                 }
 
                 if (this.elementsOnMap.containsKey(newPosition)) {
                     this.elementsOnMap.get(newPosition).add(animal);
+                    this.animalsOnMap.get(newPosition).add(animal);
                 }
                 else {
                     this.elementsOnMap.put(newPosition, new ArrayList<>(List.of(animal)));
+                    this.animalsOnMap.put(newPosition, new ArrayList<>(List.of(animal)));
                 }
-
-
             }
         }
     }
@@ -140,8 +145,10 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                 this.elementsOnMap.get(jungleGrassPosition).add(new Grass(jungleGrassPosition));
             }else{
                 this.elementsOnMap.put(jungleGrassPosition, Collections.singletonList(new Grass(jungleGrassPosition)));
+
             }
 
+            this.grassOnMap.put(jungleGrassPosition, new Grass(jungleGrassPosition));
             this.possibleJunglePositions.remove(jungleGrassPosition);
         }
 
@@ -152,8 +159,9 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                 this.elementsOnMap.get(stepGrassPosition).add(new Grass(stepGrassPosition));
             }else{
                 this.elementsOnMap.put(stepGrassPosition, Collections.singletonList(new Grass(stepGrassPosition)));
-            }
 
+            }
+            this.grassOnMap.put(stepGrassPosition, new Grass(stepGrassPosition));
             this.possibleStepPositions.remove(stepGrassPosition);
         }
     }
@@ -165,5 +173,18 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     public Vector2d getUpperRight(){
         return this.upperRight;
     }
-}
 
+    public Animal getAnimalOnMap(Vector2d vector2d){
+        if(this.animalsOnMap.containsKey(vector2d)){
+            return this.animalsOnMap.get(vector2d).get(0);
+        }
+        else{
+            return null;
+        }
+    }
+
+    public Grass getGrassOnMap(Vector2d vector2d){
+        return this.grassOnMap.getOrDefault(vector2d, null);
+    }
+
+}
