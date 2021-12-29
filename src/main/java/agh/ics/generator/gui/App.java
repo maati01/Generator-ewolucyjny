@@ -6,6 +6,7 @@ import agh.ics.generator.interfaces.IAnimalMoveObserver;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
@@ -23,12 +24,12 @@ public class App extends Application implements IAnimalMoveObserver {
     private AbstractWorldMap wrappedMap;
     private AbstractWorldMap boundedMap;
     Thread simulationEngineThread;
-    int screenWidth = 2000;
-    int screenHeight = 1000;
-    int mapWidth = 20;
-    int mapHeight = 30;
-    int fieldWidth = (int) Math.ceil(screenWidth/(mapWidth*2 + 1));
-    int fieldHeight = fieldWidth;
+    int screenWidth = 1500;
+    int screenHeight = 700;
+    int mapWidth;
+    int mapHeight;
+    int fieldWidth;
+    int fieldHeight;
 
 
     //TODO
@@ -38,13 +39,11 @@ public class App extends Application implements IAnimalMoveObserver {
     @Override
     public void init() throws Exception {
         try {
-            List<Vector2d> positions = new ArrayList<>(Arrays.asList(new Vector2d(1, 1), new Vector2d(1, 1)));
+
             this.wrappedMap = new WrappedGrassField(0.2);
             this.boundedMap = new BoundedGrassField(0.2);
-            SimulationEngine engine = new SimulationEngine(this.wrappedMap,this.boundedMap, positions);
-            this.simulationEngineThread = new Thread(engine);
-            engine.addObserver(this);
-            simulationEngineThread.start();
+
+
 
         } catch (IllegalArgumentException ex) {
             System.out.println(ex.getMessage());
@@ -54,9 +53,44 @@ public class App extends Application implements IAnimalMoveObserver {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Scene scene = new Scene(gridPane);
+        primaryStage.setTitle("Generator ewolucyjny");
+        Button button = new Button("Start");
+        InputSettings input = new InputSettings(button);
+
+        button.setOnAction(action -> {
+            setInputSettings(input);
+            List<Vector2d> positions = new ArrayList<>(Arrays.asList(new Vector2d(1, 1), new Vector2d(1, 1)));
+            SimulationEngine engine = new SimulationEngine(this.wrappedMap,this.boundedMap, positions);
+            this.simulationEngineThread = new Thread(engine); //TODO to chyba nie powinno tu byc, wynieść to
+            engine.addObserver(this);
+            Scene scene = new Scene(gridPane,1500,700);
+            primaryStage.setScene(scene);
+            primaryStage.show();
+            simulationEngineThread.start();
+        });
+
+
+        Scene scene = new Scene(input.getTilePane(), 400, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+    }
+
+    public void setInputSettings(InputSettings input){
+        this.mapWidth = Integer.parseInt(input.getWidth().getText());
+        this.mapHeight = Integer.parseInt(input.getHeight().getText());
+        this.wrappedMap.setHeight(this.mapHeight);
+        this.wrappedMap.setWidth(this.mapWidth);
+        this.boundedMap.setHeight(this.mapHeight);
+        this.boundedMap.setWidth(this.mapWidth);
+        this.boundedMap.findJungleCorners(); //TODO to zrobić inaczej
+        this.boundedMap.findStepAndJunglePositions();
+        this.wrappedMap.findJungleCorners();
+        this.wrappedMap.findStepAndJunglePositions();
+        this.fieldWidth = (int) Math.ceil(screenWidth/(mapWidth*2 + 1))/2; //TODO sprytniej wyliczac zmienne
+        this.fieldHeight = fieldWidth;
+
+
     }
 
     @Override
@@ -72,14 +106,11 @@ public class App extends Application implements IAnimalMoveObserver {
         this.gridPane.setGridLinesVisible(false);
         this.gridPane.setGridLinesVisible(true);
 
-        Vector2d lowerLeft = this.wrappedMap.getLowerLeft();
-        Vector2d upperRight = this.wrappedMap.getUpperRight();
-
         int i = 0;
-        for (int x = lowerLeft.x; x <= upperRight.x; x++) {
+        for (int x = 0; x <= this.mapWidth; x++) {
 
             int j = 0;
-            for (int y = lowerLeft.y; y <= upperRight.y; y++) {
+            for (int y = 0; y <= this.mapHeight; y++) {
                 drawObjectOnWrappedMap(new Vector2d(x,y),i,j);
                 drawObjectOnBoundedMap(new Vector2d(x,y),i,j);
                 j++;
@@ -94,7 +125,7 @@ public class App extends Application implements IAnimalMoveObserver {
         rectangle.setHeight(screenHeight);
         rectangle.setStroke(Color.TRANSPARENT);
         rectangle.setFill(Color.valueOf("black"));
-        this.gridPane.add(rectangle,this.wrappedMap.getUpperRight().x - this.wrappedMap.getLowerLeft().x + 1,0);
+        this.gridPane.add(rectangle,this.mapWidth + 1,0);
     }
 
     public void drawObjectOnWrappedMap(Vector2d vector,int i,int j){
@@ -110,7 +141,7 @@ public class App extends Application implements IAnimalMoveObserver {
         if(object != null) {
             GuiElementBox guiElement = new GuiElementBox(object);
             try {
-                this.gridPane.add(guiElement.getImage(), i, this.wrappedMap.getUpperRight().y - this.wrappedMap.getLowerLeft().y - j);
+                this.gridPane.add(guiElement.getImage(), i, this.mapHeight - j);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -130,8 +161,8 @@ public class App extends Application implements IAnimalMoveObserver {
         if(object != null) {
             GuiElementBox guiElement = new GuiElementBox(object);
             try {
-                this.gridPane.add(guiElement.getImage(), this.wrappedMap.getUpperRight().x - this.wrappedMap.getLowerLeft().x + i + 2,
-                        this.wrappedMap.getUpperRight().y - this.wrappedMap.getLowerLeft().y - j);
+                this.gridPane.add(guiElement.getImage(), this.mapWidth + i + 2,
+                        this.mapHeight - j);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -145,10 +176,10 @@ public class App extends Application implements IAnimalMoveObserver {
     }
 
     public void setConstraints() {
-        for(int i = 0; i <= this.wrappedMap.getUpperRight().y - this.wrappedMap.getLowerLeft().y; i++){
+        for(int i = 0; i <= this.mapHeight; i++){
             this.gridPane.getRowConstraints().add(new RowConstraints(this.fieldHeight));
         }
-        for(int i = 0; i <= (this.wrappedMap.getUpperRight().x - this.wrappedMap.getLowerLeft().x + 1)*2; i++){
+        for(int i = 0; i <= (mapWidth + 1)*2; i++){
             this.gridPane.getColumnConstraints().add(new ColumnConstraints(this.fieldWidth));
         }
     }

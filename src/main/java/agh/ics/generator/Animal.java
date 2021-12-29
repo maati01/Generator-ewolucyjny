@@ -21,7 +21,7 @@ public class Animal extends AbstractWorldMapElement {
     //sprawdzac gdzie dodawac pozycje po position change
     //uzyc tutaj klasy genotyp
 
-    public Animal(AbstractWorldMap map, int energy,Genotype genotype) {
+    public Animal(AbstractWorldMap map, int energy, Genotype genotype) {
         this.map = map;
         this.energy = energy;
         this.genes = genotype.getGenotype();
@@ -69,10 +69,10 @@ public class Animal extends AbstractWorldMapElement {
 //        };
 //    }
     public Vector2d wrappedNewPosition(Vector2d vector2d){
-        int minX = this.map.getLowerLeft().x;
-        int minY = this.map.getLowerLeft().y;
-        int maxX = this.map.getUpperRight().x;
-        int maxY = this.map.getUpperRight().y;
+        int minX = 0;
+        int minY = 0;
+        int maxX = this.map.width;
+        int maxY = this.map.height;
         int x = vector2d.x;
         int y = vector2d.y;
         if(x < minX){
@@ -93,10 +93,10 @@ public class Animal extends AbstractWorldMapElement {
     public Vector2d boundedNewPosition(Vector2d vector2d){
         int x = vector2d.x;
         int y = vector2d.y;
-        int minX = this.map.getLowerLeft().x;
-        int minY = this.map.getLowerLeft().y;
-        int maxX = this.map.getUpperRight().x;
-        int maxY = this.map.getUpperRight().y;
+        int minX = 0;
+        int minY = 0;
+        int maxX = this.map.width;
+        int maxY = this.map.height;
 
         if(x < minX){
             x = minX;

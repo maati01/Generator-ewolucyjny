@@ -9,13 +9,15 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     protected final HashMap<Vector2d, List<AbstractWorldMapElement>> elementsOnMap = new HashMap<>();
     protected final HashMap<Vector2d, List<Animal>> animalsOnMap = new HashMap<>();
     protected final HashMap<Vector2d, Grass> grassOnMap = new HashMap<>();
-    protected Vector2d lowerLeft = new Vector2d(0, 0);
-    protected Vector2d upperRight = new Vector2d(10, 10);
+//    protected Vector2d lowerLeft = new Vector2d(0, 0);
+//    protected Vector2d upperRight;
+    protected int width;
+    protected int height;
     protected double jungleRatio;
     protected HashSet<Vector2d> possibleStepPositions = new HashSet<>();
     protected HashSet<Vector2d> possibleJunglePositions = new HashSet<>();
-    int rangeX = upperRight.x - lowerLeft.x;
-    int rangeY = upperRight.y - lowerLeft.y;
+//    int rangeX;
+//    int rangeY;
     Vector2d jungleLowerLeft;
     Vector2d jungleUpperRight;
 
@@ -24,9 +26,21 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
     public AbstractWorldMap(double jungleRatio){
         this.jungleRatio = jungleRatio;
-        findJungleCorners();
-        findStepAndJunglePositions();
+//        this.upperRight = new Vector2d(width,height);
+//        this.rangeX = upperRight.x - lowerLeft.x;
+//        this.rangeY = upperRight.y - lowerLeft.y;
+//        findJungleCorners();
+//        findStepAndJunglePositions();
     }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setHeight(int height){
+        this.height = height;
+    }
+
 
     public List<Animal> getAnimalsOnMap(){
         List<Animal> animalsOnMapList = new ArrayList<>();
@@ -38,11 +52,12 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         return animalsOnMapList;
     }
     public void findJungleCorners(){
-        int a = lowerLeft.x + (int) Math.floor(Math.sqrt(jungleRatio)*rangeX);
-        int b = lowerLeft.y + (int) Math.floor(Math.sqrt(jungleRatio)*rangeY);
+        int a = (int) Math.floor(Math.sqrt(jungleRatio)*this.width);
+        int b = (int) Math.floor(Math.sqrt(jungleRatio)*this.height);
 
-        this.jungleLowerLeft = new Vector2d((rangeX - a)/2,(rangeY - b)/2);
+        this.jungleLowerLeft = new Vector2d((width - a)/2,(height - b)/2);
         this.jungleUpperRight = new Vector2d(this.jungleLowerLeft.x + a,b + this.jungleLowerLeft.y);
+
     }
 
     public void addPositions(int i, int j){
@@ -59,8 +74,8 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     }
 
     public void findStepAndJunglePositions(){
-        for(int i = 0; i <= rangeX; i++){
-            for(int j = 0; j <= rangeY; j++){
+        for(int i = 0; i <= width; i++){
+            for(int j = 0; j <= height; j++){
                 addPositions(i,j);
             }
         }
@@ -128,13 +143,16 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                     this.elementsOnMap.get(oldPosition).remove(animal);
                 }
 
+                //TODO
+                //tutaj jest gdzie bląd
+
                 if(this.animalsOnMap.containsKey(oldPosition) && this.animalsOnMap.get(oldPosition).size() == 1){
                     this.animalsOnMap.remove(oldPosition);
                 }else{
                     this.animalsOnMap.get(oldPosition).remove(animal);
                 }
 
-                if (this.elementsOnMap.containsKey(newPosition)) {
+                if(this.elementsOnMap.containsKey(newPosition)) { //here np
                     this.elementsOnMap.get(newPosition).add(animal);
 
                 }
@@ -185,14 +203,6 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             this.grassOnMap.put(stepGrassPosition, new Grass(stepGrassPosition));
             this.possibleStepPositions.remove(stepGrassPosition);
         }
-    }
-
-    public Vector2d getLowerLeft(){
-        return this.lowerLeft;
-    }
-
-    public Vector2d getUpperRight(){
-        return this.upperRight;
     }
 
     public Animal getAnimalOnMap(Vector2d vector2d){
