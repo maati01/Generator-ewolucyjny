@@ -9,13 +9,12 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class SimulationEngine implements IEngine, Runnable{
-    protected List<MoveDirection> moves;
     private final AbstractWorldMap wrappedMap;
     private final AbstractWorldMap boundedMap;
     private List<Animal> animalsOnWrappedMap;
     private List<Animal> animalsOnBoundedMap;
     private final List<IAnimalMoveObserver> observers = new ArrayList<>();
-    private final int moveDelay = 300;
+    private final int moveDelay = 200;
     private final Reproduction reproductionAnimalsOnWrappedMap;
     private final Reproduction reproductionAnimalsOnBoundedMap;
 
@@ -41,7 +40,7 @@ public class SimulationEngine implements IEngine, Runnable{
 //        }
 //    }
 
-    public SimulationEngine(AbstractWorldMap wrappedMap,AbstractWorldMap boundedMap, List<Vector2d> positions){
+    public SimulationEngine(AbstractWorldMap wrappedMap,AbstractWorldMap boundedMap){
         this.wrappedMap = wrappedMap;
         this.boundedMap = boundedMap;
         this.animalsOnWrappedMap = new ArrayList<>();
@@ -49,14 +48,14 @@ public class SimulationEngine implements IEngine, Runnable{
         this.reproductionAnimalsOnBoundedMap = new Reproduction(this.boundedMap);
         this.reproductionAnimalsOnWrappedMap = new Reproduction(this.wrappedMap);
 
-        for(Vector2d vector2d: positions){
-            Animal animalOnWrappedMap = new Animal(this.wrappedMap,vector2d,10);
-            Animal animalOnBoundedMap = new Animal(this.boundedMap,vector2d,10);
-            this.wrappedMap.place(animalOnWrappedMap);
-            this.animalsOnWrappedMap.add(animalOnWrappedMap);
-            this.boundedMap.place(animalOnBoundedMap);
-            this.animalsOnBoundedMap.add(animalOnBoundedMap);
-            }
+//        for(Vector2d vector2d: positions){
+//            Animal animalOnWrappedMap = new Animal(this.wrappedMap,vector2d,10);
+//            Animal animalOnBoundedMap = new Animal(this.boundedMap,vector2d,10);
+//            this.wrappedMap.place(animalOnWrappedMap);
+//            this.animalsOnWrappedMap.add(animalOnWrappedMap);
+//            this.boundedMap.place(animalOnBoundedMap);
+//            this.animalsOnBoundedMap.add(animalOnBoundedMap);
+//            }
 
         }
 
@@ -85,7 +84,7 @@ public class SimulationEngine implements IEngine, Runnable{
 
             if(map.grassOnMap.containsKey(vector2d) && !map.animalsOnMap.get(vector2d).isEmpty()){
                 List<Animal> animals = findAnimalsThatEatGrass(map.animalsOnMap.get(vector2d));
-                int energyPortion = map.grassOnMap.get(vector2d).getEnergy()/animals.size();
+                int energyPortion = map.grassOnMap.get(vector2d).getPlantEnergy()/animals.size();
 
                 for(Animal animal : animals){
                     animal.addEnergy(energyPortion);
@@ -101,13 +100,38 @@ public class SimulationEngine implements IEngine, Runnable{
         for(List<Animal> animals: map.animalsOnMap.values()){
             for (Iterator<Animal> i = animals.iterator(); i.hasNext();) {
                 Animal animal = i.next();
-                if (animal.energy == 0) {
+                if (animal.getEnergy() == 0) {
                     i.remove();
                     if(map instanceof WrappedGrassField){
                         this.animalsOnWrappedMap.remove(animal);
+                        if(this.wrappedMap.possibleJunglePositions.contains(animal.getPosition())){
+                            this.wrappedMap.possibleJunglePositions.remove(animal.getPosition());
+                        }else{
+                            this.wrappedMap.possibleStepPositions.remove(animal.getPosition());
+                        }
+                        //TODO usuwac puste listy!!!
+//                        this.wrappedMap.elementsOnMap.get(animal.getPosition()).remove(animal);
+//                        this.wrappedMap.animalsOnMap.get(animal.getPosition()).remove(animal);
+//                        if(this.wrappedMap.elementsOnMap.get(animal.getPosition()).size() == 0){
+//                            this.wrappedMap.elementsOnMap.remove(animal.getPosition());
+//                            this.wrappedMap.animalsOnMap.remove(animal.getPosition());
+//                        }
                     }else{
                         this.animalsOnBoundedMap.remove(animal);
+                        if(this.boundedMap.possibleJunglePositions.contains(animal.getPosition())){
+                            this.boundedMap.possibleJunglePositions.remove(animal.getPosition());
+                        }else{
+                            this.boundedMap.possibleStepPositions.remove(animal.getPosition());
+                        }
+                        //TODO usuwac puste listy!!!
+//                        this.boundedMap.elementsOnMap.get(animal.getPosition()).remove(animal);
+//                        this.boundedMap.animalsOnMap.get(animal.getPosition()).remove(animal);
+//                        if(this.boundedMap.elementsOnMap.get(animal.getPosition()).size() == 0){
+//                            this.boundedMap.elementsOnMap.remove(animal.getPosition());
+//                            this.boundedMap.animalsOnMap.remove(animal.getPosition());
+//                        }
                     }
+
                 }
             }
         }
@@ -121,8 +145,8 @@ public class SimulationEngine implements IEngine, Runnable{
         eatGrass(this.wrappedMap);
         removeAnimalsFromMap(this.boundedMap);
         removeAnimalsFromMap(this.wrappedMap);
-        reproductionAnimalsOnWrappedMap.createChildren(this.animalsOnWrappedMap);
-        reproductionAnimalsOnBoundedMap.createChildren(this.animalsOnBoundedMap);
+        reproductionAnimalsOnWrappedMap.doReproduction(this.wrappedMap.animalsOnMap);
+        reproductionAnimalsOnBoundedMap.doReproduction(this.boundedMap.animalsOnMap);
         this.animalsOnWrappedMap = this.wrappedMap.getAnimalsOnMap();
         this.animalsOnBoundedMap = this.boundedMap.getAnimalsOnMap();
     }

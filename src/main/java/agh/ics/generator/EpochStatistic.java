@@ -1,10 +1,10 @@
 package agh.ics.generator;
 
-public class Epoch{
+public class EpochStatistic {
     private final AbstractWorldMap wrappedMap;
     private final AbstractWorldMap boundedMap;
 
-    public Epoch(AbstractWorldMap wrappedMap, AbstractWorldMap boundedMap){
+    public EpochStatistic(AbstractWorldMap wrappedMap, AbstractWorldMap boundedMap){
         this.wrappedMap = wrappedMap;
         this.boundedMap = boundedMap;
     }
@@ -16,4 +16,6 @@ public class Epoch{
     public AbstractWorldMap getWrappedMap() {
         return wrappedMap;
     }
+
+
 }

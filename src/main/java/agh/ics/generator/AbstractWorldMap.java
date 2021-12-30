@@ -9,13 +9,17 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     protected final HashMap<Vector2d, List<AbstractWorldMapElement>> elementsOnMap = new HashMap<>();
     protected final HashMap<Vector2d, List<Animal>> animalsOnMap = new HashMap<>();
     protected final HashMap<Vector2d, Grass> grassOnMap = new HashMap<>();
-//    protected Vector2d lowerLeft = new Vector2d(0, 0);
+    protected int startEnergy;
+    //    protected Vector2d lowerLeft = new Vector2d(0, 0);
 //    protected Vector2d upperRight;
     protected int width;
     protected int height;
     protected double jungleRatio;
+    protected int moveEnergy;
+    protected int plantEnergy;;
     protected HashSet<Vector2d> possibleStepPositions = new HashSet<>();
     protected HashSet<Vector2d> possibleJunglePositions = new HashSet<>();
+//    protected HashSet<Vector2d> allPossiblePositions = new HashSet<>();
 //    int rangeX;
 //    int rangeY;
     Vector2d jungleLowerLeft;
@@ -24,13 +28,17 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     //TODO
     //zmienic nazwe na steppe
 
-    public AbstractWorldMap(double jungleRatio){
+    public AbstractWorldMap(double jungleRatio,int width, int height, int numberOfStartingAnimals,int startEnergy,
+                            int moveEnergy, int plantEnergy){
         this.jungleRatio = jungleRatio;
-//        this.upperRight = new Vector2d(width,height);
-//        this.rangeX = upperRight.x - lowerLeft.x;
-//        this.rangeY = upperRight.y - lowerLeft.y;
-//        findJungleCorners();
-//        findStepAndJunglePositions();
+        this.width = width;
+        this.height = height;
+        this.moveEnergy = moveEnergy;
+        this.plantEnergy = plantEnergy;
+        this.startEnergy = startEnergy;
+        findJungleCorners();
+        findStepAndJunglePositions();
+        generateStartAnimals(numberOfStartingAnimals);
     }
 
     public void setWidth(int width) {
@@ -41,7 +49,31 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         this.height = height;
     }
 
+    public void generateStartAnimals(int numberOfStartingAnimals){
+        for(int i = 0; i < numberOfStartingAnimals; i++){ //TODO to musi byc w funkcji XD
+            if(this.possibleJunglePositions.size() < 1){
+                return;
+            }
+            Vector2d newAnimaPosition = getRandom(this.possibleJunglePositions);
+            this.place(new Animal(this,newAnimaPosition,this.startEnergy));
+//            if(this.elementsOnMap.containsKey(newAnimaPosition)){
+//                this.elementsOnMap.get(newAnimaPosition).add(new Animal(newAnimaPosition));
+//            }else{
+//                this.elementsOnMap.put(newAnimaPosition, Collections.singletonList(new Animal(newAnimaPosition)));
+//
+//            }
+//            this.animalsOnMap.put(newAnimaPosition, new Animal(newAnimaPosition));
+//
+//            if (this.possibleJunglePositions.contains(newAnimaPosition)) {
+//
+//                this.possibleJunglePositions.remove(newAnimaPosition);
+//            }else{
+//                this.possibleStepPositions.remove(newAnimaPosition);
+//            }
+        }
+    }
 
+    //TODO to jest raczej zbedne
     public List<Animal> getAnimalsOnMap(){
         List<Animal> animalsOnMapList = new ArrayList<>();
 
@@ -51,6 +83,8 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
         return animalsOnMapList;
     }
+
+
     public void findJungleCorners(){
         int a = (int) Math.floor(Math.sqrt(jungleRatio)*this.width);
         int b = (int) Math.floor(Math.sqrt(jungleRatio)*this.height);
@@ -67,6 +101,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         else{
             this.possibleStepPositions.add(new Vector2d(i,j));
         }
+//        this.allPossiblePositions.add(new Vector2d(i,j)); //TODO to mozna chyba zrobic mergowaniem
     }
 
     public boolean checkPointInJungle(int i, int j){
@@ -181,13 +216,13 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             Vector2d jungleGrassPosition = getRandom(this.possibleJunglePositions);
 
             if(this.elementsOnMap.containsKey(jungleGrassPosition)){
-                this.elementsOnMap.get(jungleGrassPosition).add(new Grass(jungleGrassPosition));
+                this.elementsOnMap.get(jungleGrassPosition).add(new Grass(jungleGrassPosition,this.plantEnergy));
             }else{
-                this.elementsOnMap.put(jungleGrassPosition, Collections.singletonList(new Grass(jungleGrassPosition)));
+                this.elementsOnMap.put(jungleGrassPosition, Collections.singletonList(new Grass(jungleGrassPosition,this.plantEnergy)));
 
             }
 
-            this.grassOnMap.put(jungleGrassPosition, new Grass(jungleGrassPosition));
+            this.grassOnMap.put(jungleGrassPosition, new Grass(jungleGrassPosition,this.plantEnergy));
             this.possibleJunglePositions.remove(jungleGrassPosition);
         }
 
@@ -195,12 +230,12 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             Vector2d stepGrassPosition = getRandom(this.possibleStepPositions);
 
             if(this.elementsOnMap.containsKey(stepGrassPosition)){
-                this.elementsOnMap.get(stepGrassPosition).add(new Grass(stepGrassPosition));
+                this.elementsOnMap.get(stepGrassPosition).add(new Grass(stepGrassPosition,this.plantEnergy));
             }else{
-                this.elementsOnMap.put(stepGrassPosition, Collections.singletonList(new Grass(stepGrassPosition)));
+                this.elementsOnMap.put(stepGrassPosition, Collections.singletonList(new Grass(stepGrassPosition,this.plantEnergy)));
 
             }
-            this.grassOnMap.put(stepGrassPosition, new Grass(stepGrassPosition));
+            this.grassOnMap.put(stepGrassPosition, new Grass(stepGrassPosition,this.plantEnergy));
             this.possibleStepPositions.remove(stepGrassPosition);
         }
     }

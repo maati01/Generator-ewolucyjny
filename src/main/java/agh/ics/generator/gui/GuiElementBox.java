@@ -2,7 +2,6 @@ package agh.ics.generator.gui;
 
 import agh.ics.generator.AbstractWorldMapElement;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
@@ -12,19 +11,22 @@ import java.io.FileNotFoundException;
 
 public class GuiElementBox {
     AbstractWorldMapElement element;
+    int imageWidth;
+    int imageHeight;
 
-    public GuiElementBox(AbstractWorldMapElement element){
+    public GuiElementBox(AbstractWorldMapElement element,int imageWidth, int imageHeight){
         this.element = element;
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
     }
 
     public VBox getImage() throws FileNotFoundException {
         Image image = new Image(new FileInputStream(this.element.getImagePath()));
         ImageView imageView = new ImageView(image);
-        Label label = new Label(this.element.toStringInGui());
-        VBox verticalBox = new VBox(imageView,label);
+        VBox verticalBox = new VBox(imageView);
 
-        imageView.setFitWidth(20);
-        imageView.setFitHeight(20);
+        imageView.setFitWidth(this.imageWidth);
+        imageView.setFitHeight(this.imageHeight);
         verticalBox.setAlignment(Pos.CENTER);
 
         return verticalBox;

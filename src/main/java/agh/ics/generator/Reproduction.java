@@ -1,29 +1,28 @@
 package agh.ics.generator;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Reproduction {
-//    protected final List<Animal> animalsOnMap;
-//    protected final List<Animal> animalsForReproduction;
     protected final AbstractWorldMap map;
-    protected final int minimumEnergy = 5;
+    protected final int minimumEnergy;
     Random random = new Random();
 
     public Reproduction(AbstractWorldMap map) {
-//        this.animalsOnMap = animalsOnMap;
         this.map = map;
-//        this.animalsForReproduction = findCandidatesForReproduction();
+        this.minimumEnergy = this.map.startEnergy/2;
     }
 
-    public List<Animal> findCandidatesForReproduction(List<Animal> animalsOnMap){
-        animalsOnMap.sort((o1, o2) -> {
-            return Integer.compare(o1.getEnergy(),o2.getEnergy());
-        });
+    public void doReproduction(HashMap<Vector2d, List<Animal>> animalsOnMap){
+        for(List<Animal> animals : animalsOnMap.values()) {
+            animals.sort((o1, o2) -> {
+                return Integer.compare(o2.getEnergy(), o1.getEnergy());
+            });
 
-        return new ArrayList<>(Arrays.asList(animalsOnMap.get(0),animalsOnMap.get(1)));
+            if (animals.size() >= 2) {
+                createChildren(new ArrayList<>(Arrays.asList(animals.get(0), animals.get(1))));
+            }
+        }
+
     }
 
     public String pickSide(){
@@ -37,22 +36,20 @@ public class Reproduction {
     }
 
     public boolean checkEnergyLimits(List<Animal> animalsForReproduction){
-        return animalsForReproduction.get(0).energy >= minimumEnergy && animalsForReproduction.get(1).energy >= minimumEnergy;
+        return animalsForReproduction.get(0).getEnergy() >= minimumEnergy && animalsForReproduction.get(1).getEnergy() >= minimumEnergy;
     }
 
     public int calculateLengthDominantGene(List<Animal> animalsForReproduction){
-        double proportion = ((double) animalsForReproduction.get(1).energy)/(animalsForReproduction.get(0).energy + animalsForReproduction.get(1).energy);
+        double proportion = ((double) animalsForReproduction.get(1).getEnergy())/(animalsForReproduction.get(0).getEnergy() + animalsForReproduction.get(1).getEnergy());
         return (int) (animalsForReproduction.get(0).getGenes().size()*proportion);
     }
 
-    public void createChildren(List<Animal> animalsOnMap){
-        if(animalsOnMap.size() < 2){
-            return;
-        }
+    public void lostEnergy(Animal animal){
+        animal.setEnergy(animal.getEnergy()- animal.getEnergy()/4);
+    }
 
+    public void createChildren(List<Animal> animalsForReproduction){
         Genotype genotype;
-        List<Animal> animalsForReproduction = findCandidatesForReproduction(animalsOnMap);
-
         if(!checkEnergyLimits(animalsForReproduction)){
             return;
         }
@@ -69,7 +66,13 @@ public class Reproduction {
                     animalsForReproduction.get(0).getGenes(),animalsForReproduction.get(0).getGenes().size() - length);
         }
 
-        this.map.place(new Animal(this.map,30,genotype));
+        lostEnergy(animalsForReproduction.get(0));
+        lostEnergy(animalsForReproduction.get(1));
+
+        Animal newAnimal = new Animal(this.map,
+                animalsForReproduction.get(0).getEnergy()/4 + animalsForReproduction.get(1).getEnergy()/4,
+                genotype,animalsForReproduction.get(0).getPosition());
+        this.map.place(newAnimal);
     }
 
 }

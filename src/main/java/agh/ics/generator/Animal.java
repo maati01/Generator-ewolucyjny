@@ -8,12 +8,12 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class Animal extends AbstractWorldMapElement {
-    private MapDirection vector = MapDirection.NORTH;
-    private Vector2d position = new Vector2d(2,2);
+    private MapDirection vector;
+    private Vector2d position;
     private final AbstractWorldMap map;
     private final List<IPositionChangeObserver> observers = new ArrayList<>();
     private final List<Integer> genes;
-    private int dayCounter = 0;
+    private int energy;
     Random random = new Random();
 
 
@@ -21,22 +21,36 @@ public class Animal extends AbstractWorldMapElement {
     //sprawdzac gdzie dodawac pozycje po position change
     //uzyc tutaj klasy genotyp
 
-    public Animal(AbstractWorldMap map, int energy, Genotype genotype) {
+
+    //konstruktor uzywany jest przy repordukcji
+    public Animal(AbstractWorldMap map, int energy, Genotype genotype,Vector2d position) {
         this.map = map;
         this.energy = energy;
         this.genes = genotype.getGenotype();
+        this.position = position;
+        this.vector = getRandomDirection();
         this.addObserver(this.map);
     }
 
-    public Animal(AbstractWorldMap map, Vector2d initialPosition, int energy){
+
+    //konstruktor przy początkowych zwierzętach
+    public Animal(AbstractWorldMap map,Vector2d position, int startEnergy){
         this.map = map;
-        this.position = initialPosition;
-        this.energy = energy;
+        this.position = position;
+        this.energy = startEnergy;
         this.genes =  random.ints(32, 0, 7).boxed().sorted()
                 .collect(Collectors.toList());
+        this.vector = getRandomDirection();
         this.addObserver(this.map);
     }
 
+    public int getEnergy(){
+        return this.energy;
+    }
+
+    public void setEnergy(int energy){
+        this.energy = energy;
+    }
     public List<Integer> getGenes(){
         return this.genes;
     }
@@ -68,6 +82,26 @@ public class Animal extends AbstractWorldMapElement {
 //            case EAST -> "src/main/resources/rabbit_east.png";
 //        };
 //    }
+
+    public MapDirection getRandomDirection(){
+        return directionForIndex(random.nextInt(8));
+    }
+
+    //TODO to chyba zbedne jest
+    public MapDirection directionForIndex(int index){
+        return switch (index){
+            case 0 -> MapDirection.NORTH;
+            case 1 -> MapDirection.NORTH_EAST;
+            case 2 -> MapDirection.EAST;
+            case 3 -> MapDirection.SOUTH_EAST;
+            case 4 -> MapDirection.SOUTH;
+            case 5 -> MapDirection.SOUTH_WEST;
+            case 6 -> MapDirection.WEST;
+            case 7 -> MapDirection.NORTH_WEST;
+            default -> throw new IllegalStateException("Unexpected value: " + index);
+        };
+    }
+
     public Vector2d wrappedNewPosition(Vector2d vector2d){
         int minX = 0;
         int minY = 0;
@@ -118,13 +152,17 @@ public class Animal extends AbstractWorldMapElement {
     }
 
     public void updateEnergy(){
-        this.energy -= 1;
+        this.energy -= this.map.moveEnergy;
+    }
+
+    public int pickMove(){
+        return this.genes.get(random.nextInt(32));
     }
 
     public void move(){
-        int move = (genes.get(dayCounter) + this.vector.indexForDirection())%7;
+        int move = pickMove();
         Vector2d newPosition;
-        switch (genes.get(dayCounter)){
+        switch (move){
             case 0 -> {
                 if(this.map instanceof WrappedGrassField) {
                     newPosition = wrappedNewPosition(this.position.add(this.vector.toUnitVector()));
@@ -151,12 +189,8 @@ public class Animal extends AbstractWorldMapElement {
                 this.position = newPosition;
 
             }
-            default -> this.vector = this.vector.directionForIndex(move);
+            default -> this.vector = this.vector.directionForIndex((this.vector.indexForDirection() + move)%7); //TODO to jest podejrzane
 
-        }
-        dayCounter += 1;
-        if(dayCounter == 31){
-            dayCounter = 0;
         }
         updateEnergy();
     }

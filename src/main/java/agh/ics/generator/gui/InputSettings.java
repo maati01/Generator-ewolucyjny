@@ -17,20 +17,23 @@ public class InputSettings extends Parent {
     private final TextField moveEnergy;
     private final TextField plantEnergy;
     private final TextField jungleRatio;
+    private final TextField numberOfStartingAnimals;
     private final HBox widthBox;
     private final HBox heightBox;
     private final HBox startEnergyBox;
     private final HBox moveEnergyBox;
     private final HBox plantEnergyBox;
     private final HBox jungleRatioBox;
+    private final HBox numberOfStartingAnimalsBox;
 
     public InputSettings(Button button){
-        this.width = new TextField();
-        this.height = new TextField();
-        this.startEnergy = new TextField();
-        this.moveEnergy = new TextField();
-        this.plantEnergy = new TextField();
-        this.jungleRatio = new TextField();
+        this.width = new TextField("20");
+        this.height = new TextField("20");
+        this.startEnergy = new TextField("100");
+        this.moveEnergy = new TextField("1");
+        this.plantEnergy = new TextField("100");
+        this.jungleRatio = new TextField("0.4");
+        this.numberOfStartingAnimals = new TextField("20");
 
         Label widthLabel = new Label("Width: ");
         Label heightLabel = new Label("Height: ");
@@ -38,6 +41,7 @@ public class InputSettings extends Parent {
         Label moveEnergyLabel = new Label("Move energy: ");
         Label plantEnergyLabel = new Label("Plant energy: ");
         Label jungleRatioLabel = new Label("Jungle ratio: ");
+        Label numberOfStartingAnimalsLabel = new Label("Number of animals at start: ");
 
         this.widthBox = new HBox(widthLabel,this.width);
         this.heightBox = new HBox(heightLabel,this.height);
@@ -45,10 +49,11 @@ public class InputSettings extends Parent {
         this.moveEnergyBox = new HBox(moveEnergyLabel,this.moveEnergy);
         this.plantEnergyBox = new HBox(plantEnergyLabel,this.plantEnergy);
         this.jungleRatioBox = new HBox(jungleRatioLabel,this.jungleRatio);
+        this.numberOfStartingAnimalsBox = new HBox(numberOfStartingAnimalsLabel,this.numberOfStartingAnimals);
 
 
         this.tilePane = new TilePane(this.widthBox,this.heightBox,this.startEnergyBox,
-                this.moveEnergyBox,this.plantEnergyBox,this.jungleRatioBox,button);
+                this.moveEnergyBox,this.plantEnergyBox,this.jungleRatioBox,this.numberOfStartingAnimalsBox,button);
 
         setParameters();
     }
@@ -81,6 +86,8 @@ public class InputSettings extends Parent {
         return this.jungleRatio;
     }
 
+    public TextField getNumberOfStartingAnimals(){ return this.numberOfStartingAnimals;}
+
     public void setParameters(){
         this.widthBox.setSpacing(42);
         this.heightBox.setSpacing(39);
@@ -88,6 +95,7 @@ public class InputSettings extends Parent {
         this.moveEnergyBox.setSpacing(5);
         this.plantEnergyBox.setSpacing(8);
         this.jungleRatioBox.setSpacing(13);
+        this.numberOfStartingAnimalsBox.setSpacing(5);
 
         tilePane.setPadding(new Insets(10,10,10,10));
         tilePane.setHgap(10);
