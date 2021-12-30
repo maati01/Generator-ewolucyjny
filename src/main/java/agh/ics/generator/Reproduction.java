@@ -69,6 +69,9 @@ public class Reproduction {
         lostEnergy(animalsForReproduction.get(0));
         lostEnergy(animalsForReproduction.get(1));
 
+        animalsForReproduction.get(0).updateNumberOfChildren();
+        animalsForReproduction.get(1).updateNumberOfChildren();
+
         Animal newAnimal = new Animal(this.map,
                 animalsForReproduction.get(0).getEnergy()/4 + animalsForReproduction.get(1).getEnergy()/4,
                 genotype,animalsForReproduction.get(0).getPosition());

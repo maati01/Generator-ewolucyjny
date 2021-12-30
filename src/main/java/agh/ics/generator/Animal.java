@@ -14,6 +14,8 @@ public class Animal extends AbstractWorldMapElement {
     private final List<IPositionChangeObserver> observers = new ArrayList<>();
     private final List<Integer> genes;
     private int energy;
+    private int dayOfLife = 1;
+    private int numberOfChildren = 0;
     Random random = new Random();
 
 
@@ -42,6 +44,18 @@ public class Animal extends AbstractWorldMapElement {
                 .collect(Collectors.toList());
         this.vector = getRandomDirection();
         this.addObserver(this.map);
+    }
+
+    public int getDayOfLife(){
+        return this.dayOfLife;
+    }
+
+    public int getNumberOfChildren(){
+        return this.numberOfChildren;
+    }
+
+    public void updateNumberOfChildren() {
+        this.numberOfChildren += 1;
     }
 
     public int getEnergy(){
@@ -162,6 +176,7 @@ public class Animal extends AbstractWorldMapElement {
     public void move(){
         int move = pickMove();
         Vector2d newPosition;
+        this.dayOfLife += 1;
         switch (move){
             case 0 -> {
                 if(this.map instanceof WrappedGrassField) {

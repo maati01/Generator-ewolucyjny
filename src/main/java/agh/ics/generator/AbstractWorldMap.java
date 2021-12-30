@@ -184,6 +184,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                 if(this.animalsOnMap.containsKey(oldPosition) && this.animalsOnMap.get(oldPosition).size() == 1){
                     this.animalsOnMap.remove(oldPosition);
                 }else{
+                    System.out.println(this.animalsOnMap);
                     this.animalsOnMap.get(oldPosition).remove(animal);
                 }
 

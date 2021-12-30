@@ -9,19 +9,15 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 
-import java.util.List;
-
 public class MiddleGridPaneInfo extends GridPane {
     Label mapTitle;
     Button save;
     Button pause;
     CheckBox normalEvolution;
     CheckBox magicEvolution;
-    List<Chart> charts;
 
-    public MiddleGridPaneInfo(String mapTitle, List<Chart> charts){
+    public MiddleGridPaneInfo(String mapTitle){
         this.mapTitle = new Label(mapTitle);
-        this.charts = charts;
         this.save = new Button("Save");
         this.pause = new Button("Pause");
         this.normalEvolution = new CheckBox("Normal evolution");
@@ -48,9 +44,6 @@ public class MiddleGridPaneInfo extends GridPane {
         this.add(box,0,1);
         this.add(normalEvolution,0,2);
         this.add(magicEvolution,0,3);
-
-        this.add(this.charts.get(0).updateChart(0,0),0,4);
-        this.add(this.charts.get(1).updateChart(0,0),0,5);
 
         this.setPadding(new Insets(10,0,10,0));
     }

@@ -17,6 +17,8 @@ public class SimulationEngine implements IEngine, Runnable{
     private final int moveDelay = 200;
     private final Reproduction reproductionAnimalsOnWrappedMap;
     private final Reproduction reproductionAnimalsOnBoundedMap;
+    private final EpochStatistic epochStatisticWrappedMap;
+    private final EpochStatistic epochStatisticBoundedMap;
 
 
     public List<Animal> getAnimalsOnWrappedMap() {
@@ -47,6 +49,9 @@ public class SimulationEngine implements IEngine, Runnable{
         this.animalsOnBoundedMap = new ArrayList<>();
         this.reproductionAnimalsOnBoundedMap = new Reproduction(this.boundedMap);
         this.reproductionAnimalsOnWrappedMap = new Reproduction(this.wrappedMap);
+        this.epochStatisticWrappedMap = new EpochStatistic(this.wrappedMap);
+        this.epochStatisticBoundedMap = new EpochStatistic(this.boundedMap);
+
 
 //        for(Vector2d vector2d: positions){
 //            Animal animalOnWrappedMap = new Animal(this.wrappedMap,vector2d,10);
@@ -149,6 +154,8 @@ public class SimulationEngine implements IEngine, Runnable{
         reproductionAnimalsOnBoundedMap.doReproduction(this.boundedMap.animalsOnMap);
         this.animalsOnWrappedMap = this.wrappedMap.getAnimalsOnMap();
         this.animalsOnBoundedMap = this.boundedMap.getAnimalsOnMap();
+        this.epochStatisticBoundedMap.updateStatistic();
+        this.epochStatisticWrappedMap.updateStatistic();
     }
 
     @Override
@@ -157,7 +164,7 @@ public class SimulationEngine implements IEngine, Runnable{
         int size2;
 
         for(IAnimalMoveObserver observer : observers) {
-            observer.animalMove();
+            observer.animalMove(this.epochStatisticWrappedMap,this.epochStatisticBoundedMap);
         }
 
 
@@ -175,7 +182,7 @@ public class SimulationEngine implements IEngine, Runnable{
             simulationEpoch();
 
             for(IAnimalMoveObserver observer : this.observers) {
-                observer.animalMove();
+                observer.animalMove(this.epochStatisticWrappedMap,this.epochStatisticBoundedMap);
             }
 
             try {

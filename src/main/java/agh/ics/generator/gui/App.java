@@ -20,7 +20,7 @@ public class App extends Application implements IAnimalMoveObserver {
     private final GridPane gridPaneContainer = new GridPane();
     private final GridPane gridPaneForWrappedMap = new GridPane();
     private final GridPane gridPaneForBoundedMap = new GridPane();
-
+    LowerGridPaneInfo gridLowerInfoWrappedMap;
 
     private AbstractWorldMap wrappedMap;
     private AbstractWorldMap boundedMap;
@@ -54,15 +54,10 @@ public class App extends Application implements IAnimalMoveObserver {
     ArrayList<Chart> wrappedMapCharts = new ArrayList<>();
     ArrayList<Chart> boundedMapCharts = new ArrayList<>();
 
-    int cnt = 1;
-
-    //TODO
-    //przekazywac do silnika dwie mapy
-    //problem z rysowaniem obiektów
-
     @Override
     public void init() throws Exception {
         try {
+            Platform.setImplicitExit(false);
             createCharts();
             prepareLayout();
         } catch (IllegalArgumentException ex) {
@@ -95,9 +90,6 @@ public class App extends Application implements IAnimalMoveObserver {
             simulationEngineThread.start();
         });
 
-
-
-
         Scene scene = new Scene(input.getTilePane(), 400, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -105,8 +97,8 @@ public class App extends Application implements IAnimalMoveObserver {
     }
 
     public void prepareLayout(){
-        MiddleGridPaneInfo gridInfoWrappedMap = new MiddleGridPaneInfo("Wrapped map",this.wrappedMapCharts);
-        MiddleGridPaneInfo gridInfoBoundedMap = new MiddleGridPaneInfo("Bounded map",this.boundedMapCharts);
+        MiddleGridPaneInfo gridInfoWrappedMap = new MiddleGridPaneInfo("Wrapped map");
+        MiddleGridPaneInfo gridInfoBoundedMap = new MiddleGridPaneInfo("Bounded map");
         LowerGridPaneInfo gridLowerInfoWrappedMap = new LowerGridPaneInfo(this.wrappedMapCharts);
         LowerGridPaneInfo gridLowerInfoBoundedMap = new LowerGridPaneInfo(this.boundedMapCharts);
 
@@ -133,13 +125,17 @@ public class App extends Application implements IAnimalMoveObserver {
     }
 
 
-    public void updateCharts(){
-        cnt += 1;
-        this.gridPaneContainer.add(this.chartAllAnimalsWrappedMap.updateChart(cnt,cnt),0,1);
-        this.gridPaneContainer.add(this.chartAllGrassWrappedMap.updateChart(cnt,cnt),1,1);
-        this.gridPaneContainer.add(this.chartAvgAnimalsEnergyWrappedMap.updateChart(cnt,cnt),0,2);
-        this.gridPaneContainer.add(this.chartLifeExpectancyWrappedMap.updateChart(cnt,cnt),1,2);
-//        this.gridPaneContainer.add(this.avgNumberOfChildrenWrappedMap.updateChart(cnt,cnt),0,15);
+    public void updateCharts(EpochStatistic statisticWrappedMap,EpochStatistic statisticBoundedMap){
+        this.wrappedMapCharts.get(0).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getAllAnimalsMap());
+        this.wrappedMapCharts.get(1).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getAllGrassMap());
+        this.wrappedMapCharts.get(2).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getAvgAnimalsEnergyMap().orElse(-1));
+        this.wrappedMapCharts.get(3).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getLifeExpectancyMap().orElse(-1));
+        this.wrappedMapCharts.get(4).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getNumberOfChildrenMap().orElse(-1));
+        this.boundedMapCharts.get(0).updateChart(statisticBoundedMap.getDay(),statisticBoundedMap.getAllAnimalsMap());
+        this.boundedMapCharts.get(1).updateChart(statisticBoundedMap.getDay(),statisticBoundedMap.getAllGrassMap());
+        this.boundedMapCharts.get(2).updateChart(statisticBoundedMap.getDay(),statisticBoundedMap.getAvgAnimalsEnergyMap().orElse(-1));
+        this.boundedMapCharts.get(3).updateChart(statisticBoundedMap.getDay(),statisticBoundedMap.getLifeExpectancyMap().orElse(-1));
+        this.boundedMapCharts.get(4).updateChart(statisticBoundedMap.getDay(),statisticBoundedMap.getNumberOfChildrenMap().orElse(-1));
 
     }
 
@@ -161,18 +157,16 @@ public class App extends Application implements IAnimalMoveObserver {
     }
 
     @Override
-    public void animalMove() {
+    public void animalMove(EpochStatistic statisticWrappedMap,EpochStatistic statisticBoundedMap) {
         Platform.runLater(() -> {
-//            this.gridPaneContainer.getChildren().clear();
             this.gridPaneForWrappedMap.getChildren().clear();
             this.gridPaneForBoundedMap.getChildren().clear();
-//            this.gridPaneContainer.getRowConstraints().clear();
             this.gridPaneForWrappedMap.getRowConstraints().clear();
             this.gridPaneForBoundedMap.getRowConstraints().clear();
-//            this.gridPaneContainer.getColumnConstraints().clear();
             this.gridPaneForBoundedMap.getColumnConstraints().clear();
             this.gridPaneForWrappedMap.getColumnConstraints().clear();
-            showResult();});
+            showResult(statisticWrappedMap,statisticBoundedMap);});
+
     }
 
     public void drawGrid() {
@@ -234,13 +228,10 @@ public class App extends Application implements IAnimalMoveObserver {
             }
         }
     }
-    //TODO nie aktualizowac grida kontenera
-    public void showResult() {
+    public void showResult(EpochStatistic statisticWrappedMap,EpochStatistic statisticBoundedMap) {
         drawGrid();
         setConstraintsMaps();
-
-//        updateCharts();
-
+        updateCharts(statisticWrappedMap,statisticBoundedMap);
     }
 
     public void setConstraintsMaps() {
