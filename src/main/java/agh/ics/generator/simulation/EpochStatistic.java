@@ -1,4 +1,7 @@
-package agh.ics.generator;
+package agh.ics.generator.simulation;
+
+import agh.ics.generator.mapelements.animal.Animal;
+import agh.ics.generator.maps.AbstractWorldMap;
 
 import java.util.OptionalDouble;
 
@@ -18,10 +21,10 @@ public class EpochStatistic {
     public void updateStatistic(){
         this.day += 1;
         this.allAnimalsMap = this.map.getAnimalsOnMap().size();
-        this.allGrassMap = this.map.grassOnMap.size();
-        this.avgAnimalsEnergyMap = this.map.getAnimalsOnMap().stream().mapToDouble(Animal::getEnergy).average();
-        this.lifeExpectancyMap = this.map.getAnimalsOnMap().stream().mapToDouble(Animal::getDayOfLife).average();
-        this.numberOfChildrenMap = this.map.getAnimalsOnMap().stream().mapToDouble(Animal::getNumberOfChildren).average();
+        this.allGrassMap = this.map.getGrassOnMap().size();
+        this.avgAnimalsEnergyMap = this.map.getAnimalsOnMapList().stream().mapToDouble(Animal::getEnergy).average();
+        this.lifeExpectancyMap = this.map.getAnimalsOnMapList().stream().mapToDouble(Animal::getDayOfLife).average();
+        this.numberOfChildrenMap = this.map.getAnimalsOnMapList().stream().mapToDouble(Animal::getNumberOfChildren).average();
     }
 
     public int getDay(){

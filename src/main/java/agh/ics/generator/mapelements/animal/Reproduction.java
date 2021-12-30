@@ -1,4 +1,7 @@
-package agh.ics.generator;
+package agh.ics.generator.mapelements.animal;
+
+import agh.ics.generator.maps.AbstractWorldMap;
+import agh.ics.generator.mapelements.Vector2d;
 
 import java.util.*;
 
@@ -9,7 +12,7 @@ public class Reproduction {
 
     public Reproduction(AbstractWorldMap map) {
         this.map = map;
-        this.minimumEnergy = this.map.startEnergy/2;
+        this.minimumEnergy = this.map.getStartEnergy()/2;
     }
 
     public void doReproduction(HashMap<Vector2d, List<Animal>> animalsOnMap){

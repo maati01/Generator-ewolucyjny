@@ -1,4 +1,4 @@
-package agh.ics.generator;
+package agh.ics.generator.mapelements;
 
 public class Grass extends AbstractWorldMapElement {
     private final Vector2d position;

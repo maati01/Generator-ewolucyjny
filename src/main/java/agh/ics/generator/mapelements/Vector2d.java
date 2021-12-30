@@ -1,4 +1,4 @@
-package agh.ics.generator;
+package agh.ics.generator.mapelements;
 
 import java.util.Objects;
 

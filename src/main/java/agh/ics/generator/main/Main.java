@@ -1,4 +1,4 @@
-package agh.ics.generator;
+package agh.ics.generator.main;
 
 import agh.ics.generator.gui.App;
 import javafx.application.Application;

@@ -1,5 +1,10 @@
-package agh.ics.generator;
+package agh.ics.generator.mapelements.animal;
 
+import agh.ics.generator.enums.MapDirection;
+import agh.ics.generator.mapelements.AbstractWorldMapElement;
+import agh.ics.generator.mapelements.Vector2d;
+import agh.ics.generator.maps.AbstractWorldMap;
+import agh.ics.generator.maps.WrappedGrassField;
 import agh.ics.generator.interfaces.IPositionChangeObserver;
 
 import java.util.ArrayList;
@@ -25,7 +30,7 @@ public class Animal extends AbstractWorldMapElement {
 
 
     //konstruktor uzywany jest przy repordukcji
-    public Animal(AbstractWorldMap map, int energy, Genotype genotype,Vector2d position) {
+    public Animal(AbstractWorldMap map, int energy, Genotype genotype, Vector2d position) {
         this.map = map;
         this.energy = energy;
         this.genes = genotype.getGenotype();
@@ -119,8 +124,8 @@ public class Animal extends AbstractWorldMapElement {
     public Vector2d wrappedNewPosition(Vector2d vector2d){
         int minX = 0;
         int minY = 0;
-        int maxX = this.map.width;
-        int maxY = this.map.height;
+        int maxX = this.map.getWidth();
+        int maxY = this.map.getHeight();
         int x = vector2d.x;
         int y = vector2d.y;
         if(x < minX){
@@ -143,8 +148,8 @@ public class Animal extends AbstractWorldMapElement {
         int y = vector2d.y;
         int minX = 0;
         int minY = 0;
-        int maxX = this.map.width;
-        int maxY = this.map.height;
+        int maxX = this.map.getWidth();
+        int maxY = this.map.getHeight();
 
         if(x < minX){
             x = minX;
@@ -166,7 +171,7 @@ public class Animal extends AbstractWorldMapElement {
     }
 
     public void updateEnergy(){
-        this.energy -= this.map.moveEnergy;
+        this.energy -= this.map.getMoveEnergy();
     }
 
     public int pickMove(){
@@ -225,20 +230,20 @@ public class Animal extends AbstractWorldMapElement {
         for (IPositionChangeObserver observer : this.observers){
             observer.positionChanged(oldPosition, newPosition, animal);
 
-            if(this.map.elementsOnMap.containsKey(oldPosition) && this.map.elementsOnMap.get(oldPosition).size() > 1) {
-                if (oldPosition.x >= this.map.jungleLowerLeft.x && oldPosition.x <= this.map.jungleUpperRight.x
-                        && oldPosition.y >= this.map.jungleLowerLeft.y && oldPosition.y <= this.map.jungleUpperRight.y) {
-                    this.map.possibleJunglePositions.add(new Vector2d(oldPosition.x, oldPosition.y));
+            if(this.map.getElementsOnMap().containsKey(oldPosition) && this.map.getElementsOnMap().get(oldPosition).size() > 1) {
+                if (oldPosition.x >= this.map.getJungleLowerLeft().x && oldPosition.x <= this.map.getJungleUpperRight().x
+                        && oldPosition.y >= this.map.getJungleLowerLeft().y && oldPosition.y <= this.map.getJungleUpperRight().y) {
+                    this.map.getPossibleJunglePositions().add(new Vector2d(oldPosition.x, oldPosition.y));
                 } else {
-                    this.map.possibleStepPositions.add(new Vector2d(oldPosition.x, oldPosition.y));
+                    this.map.getPossibleStepPositions().add(new Vector2d(oldPosition.x, oldPosition.y));
                 }
             }
-            if(newPosition.x >= this.map.jungleLowerLeft.x && newPosition.x <= this.map.jungleUpperRight.x
-                && newPosition.y >= this.map.jungleLowerLeft.y && newPosition.y <= this.map.jungleUpperRight.y){
-                this.map.possibleJunglePositions.remove(new Vector2d(newPosition.x,newPosition.y));
+            if(newPosition.x >= this.map.getJungleLowerLeft().x && newPosition.x <= this.map.getJungleUpperRight().x
+                && newPosition.y >= this.map.getJungleLowerLeft().y && newPosition.y <= this.map.getJungleUpperRight().y){
+                this.map.getPossibleJunglePositions().remove(new Vector2d(newPosition.x,newPosition.y));
             }
             else{
-                this.map.possibleStepPositions.remove(new Vector2d(newPosition.x,newPosition.y));
+                this.map.getPossibleStepPositions().remove(new Vector2d(newPosition.x,newPosition.y));
             }
 
     }

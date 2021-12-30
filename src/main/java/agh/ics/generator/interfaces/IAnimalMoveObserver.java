@@ -1,6 +1,6 @@
 package agh.ics.generator.interfaces;
 
-import agh.ics.generator.EpochStatistic;
+import agh.ics.generator.simulation.EpochStatistic;
 
 public interface IAnimalMoveObserver {
 

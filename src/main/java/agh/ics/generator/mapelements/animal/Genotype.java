@@ -1,4 +1,4 @@
-package agh.ics.generator;
+package agh.ics.generator.mapelements.animal;
 
 import java.util.ArrayList;
 import java.util.Collections;

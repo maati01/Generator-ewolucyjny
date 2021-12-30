@@ -1,6 +1,6 @@
 package agh.ics.generator.interfaces;
 
-import agh.ics.generator.Vector2d;
+import agh.ics.generator.mapelements.Vector2d;
 
 public interface IMapElement {
 

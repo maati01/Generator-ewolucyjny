@@ -1,5 +1,10 @@
-package agh.ics.generator;
+package agh.ics.generator.simulation;
 
+import agh.ics.generator.mapelements.Vector2d;
+import agh.ics.generator.mapelements.animal.Animal;
+import agh.ics.generator.mapelements.animal.Reproduction;
+import agh.ics.generator.maps.AbstractWorldMap;
+import agh.ics.generator.maps.WrappedGrassField;
 import agh.ics.generator.interfaces.IAnimalMoveObserver;
 import agh.ics.generator.interfaces.IEngine;
 
@@ -82,19 +87,19 @@ public class SimulationEngine implements IEngine, Runnable{
 
     public void eatGrass(AbstractWorldMap map){
 
-        for (Vector2d vector2d: map.animalsOnMap.keySet()){
-            map.animalsOnMap.get(vector2d).sort((o1, o2) -> {
+        for (Vector2d vector2d: map.getAnimalsOnMap().keySet()){
+            map.getAnimalsOnMap().get(vector2d).sort((o1, o2) -> {
                 return Integer.compare(o2.getEnergy(),o1.getEnergy());
             });
 
-            if(map.grassOnMap.containsKey(vector2d) && !map.animalsOnMap.get(vector2d).isEmpty()){
-                List<Animal> animals = findAnimalsThatEatGrass(map.animalsOnMap.get(vector2d));
-                int energyPortion = map.grassOnMap.get(vector2d).getPlantEnergy()/animals.size();
+            if(map.getGrassOnMap().containsKey(vector2d) && !map.getAnimalsOnMap().get(vector2d).isEmpty()){
+                List<Animal> animals = findAnimalsThatEatGrass(map.getAnimalsOnMap().get(vector2d));
+                int energyPortion = map.getGrassOnMap().get(vector2d).getPlantEnergy()/animals.size();
 
                 for(Animal animal : animals){
                     animal.addEnergy(energyPortion);
                 }
-                map.grassOnMap.remove(vector2d);
+                map.getGrassOnMap().remove(vector2d);
 
             }
         }
@@ -102,31 +107,31 @@ public class SimulationEngine implements IEngine, Runnable{
     }
 
     public void removeAnimalsFromMap(AbstractWorldMap map){
-        for(List<Animal> animals: map.animalsOnMap.values()){
+        for(List<Animal> animals: map.getAnimalsOnMap().values()){
             for (Iterator<Animal> i = animals.iterator(); i.hasNext();) {
                 Animal animal = i.next();
                 if (animal.getEnergy() == 0) {
                     i.remove();
                     if(map instanceof WrappedGrassField){
                         this.animalsOnWrappedMap.remove(animal);
-                        if(this.wrappedMap.possibleJunglePositions.contains(animal.getPosition())){
-                            this.wrappedMap.possibleJunglePositions.remove(animal.getPosition());
+                        if(this.wrappedMap.getPossibleJunglePositions().contains(animal.getPosition())){
+                            this.wrappedMap.getPossibleJunglePositions().remove(animal.getPosition());
                         }else{
-                            this.wrappedMap.possibleStepPositions.remove(animal.getPosition());
+                            this.wrappedMap.getPossibleStepPositions().remove(animal.getPosition());
                         }
                     }else{
                         this.animalsOnBoundedMap.remove(animal);
-                        if(this.boundedMap.possibleJunglePositions.contains(animal.getPosition())){
-                            this.boundedMap.possibleJunglePositions.remove(animal.getPosition());
+                        if(this.boundedMap.getPossibleJunglePositions().contains(animal.getPosition())){
+                            this.boundedMap.getPossibleJunglePositions().remove(animal.getPosition());
                         }else{
-                            this.boundedMap.possibleStepPositions.remove(animal.getPosition());
+                            this.boundedMap.getPossibleStepPositions().remove(animal.getPosition());
                         }
                     }
 
                 }
             }
         }
-        map.animalsOnMap.keySet().removeIf(element -> map.animalsOnMap.get(element).isEmpty());
+        map.getAnimalsOnMap().keySet().removeIf(element -> map.getAnimalsOnMap().get(element).isEmpty());
     }
 
     public void simulationEpoch(){
@@ -136,10 +141,10 @@ public class SimulationEngine implements IEngine, Runnable{
         eatGrass(this.wrappedMap);
         removeAnimalsFromMap(this.boundedMap);
         removeAnimalsFromMap(this.wrappedMap);
-        reproductionAnimalsOnWrappedMap.doReproduction(this.wrappedMap.animalsOnMap);
-        reproductionAnimalsOnBoundedMap.doReproduction(this.boundedMap.animalsOnMap);
-        this.animalsOnWrappedMap = this.wrappedMap.getAnimalsOnMap();
-        this.animalsOnBoundedMap = this.boundedMap.getAnimalsOnMap();
+        reproductionAnimalsOnWrappedMap.doReproduction(this.wrappedMap.getAnimalsOnMap());
+        reproductionAnimalsOnBoundedMap.doReproduction(this.boundedMap.getAnimalsOnMap());
+        this.animalsOnWrappedMap = this.wrappedMap.getAnimalsOnMapList();
+        this.animalsOnBoundedMap = this.boundedMap.getAnimalsOnMapList();
         this.epochStatisticBoundedMap.updateStatistic();
         this.epochStatisticWrappedMap.updateStatistic();
     }

@@ -1,4 +1,4 @@
-package agh.ics.generator;
+package agh.ics.generator.maps;
 
 import agh.ics.generator.interfaces.IWorldMap;
 

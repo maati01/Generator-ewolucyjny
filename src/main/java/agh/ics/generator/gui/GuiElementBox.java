@@ -1,6 +1,6 @@
 package agh.ics.generator.gui;
 
-import agh.ics.generator.AbstractWorldMapElement;
+import agh.ics.generator.mapelements.AbstractWorldMapElement;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;

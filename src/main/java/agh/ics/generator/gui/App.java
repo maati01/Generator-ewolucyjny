@@ -1,8 +1,14 @@
 package agh.ics.generator.gui;
 
 
-import agh.ics.generator.*;
+import agh.ics.generator.mapelements.AbstractWorldMapElement;
+import agh.ics.generator.mapelements.Vector2d;
+import agh.ics.generator.maps.AbstractWorldMap;
+import agh.ics.generator.maps.BoundedGrassField;
+import agh.ics.generator.maps.WrappedGrassField;
 import agh.ics.generator.interfaces.IAnimalMoveObserver;
+import agh.ics.generator.simulation.EpochStatistic;
+import agh.ics.generator.simulation.SimulationEngine;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -124,7 +130,7 @@ public class App extends Application implements IAnimalMoveObserver {
         this.boundedMapCharts.add(this.avgNumberOfChildrenBoundedMap = new Chart("Average number of children"));
     }
 
-    public void updateCharts(EpochStatistic statisticWrappedMap,EpochStatistic statisticBoundedMap){
+    public void updateCharts(EpochStatistic statisticWrappedMap, EpochStatistic statisticBoundedMap){
         this.wrappedMapCharts.get(0).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getAllAnimalsMap());
         this.wrappedMapCharts.get(1).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getAllGrassMap());
         this.wrappedMapCharts.get(2).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getAvgAnimalsEnergyMap().orElse(-1));

@@ -1,5 +1,9 @@
-package agh.ics.generator;
+package agh.ics.generator.maps;
 
+import agh.ics.generator.mapelements.Grass;
+import agh.ics.generator.mapelements.Vector2d;
+import agh.ics.generator.mapelements.AbstractWorldMapElement;
+import agh.ics.generator.mapelements.animal.Animal;
 import agh.ics.generator.interfaces.IPositionChangeObserver;
 import agh.ics.generator.interfaces.IWorldMap;
 
@@ -42,6 +46,49 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         this.height = height;
     }
 
+    public int getWidth(){
+        return this.width;
+    }
+
+    public int getMoveEnergy(){
+        return this.moveEnergy;
+    }
+    public int getHeight(){
+        return this.height;
+    }
+
+    public HashMap<Vector2d, List<AbstractWorldMapElement>> getElementsOnMap(){
+        return this.elementsOnMap;
+    }
+
+    public Vector2d getJungleLowerLeft(){
+        return this.jungleLowerLeft;
+    }
+
+    public Vector2d getJungleUpperRight(){
+        return this.jungleUpperRight;
+    }
+
+    public HashSet<Vector2d> getPossibleStepPositions(){
+        return this.possibleStepPositions;
+    }
+
+    public HashSet<Vector2d> getPossibleJunglePositions(){
+        return this.possibleJunglePositions;
+    }
+
+    public int getStartEnergy(){
+        return this.startEnergy;
+    }
+
+    public HashMap<Vector2d, Grass> getGrassOnMap(){
+        return this.grassOnMap;
+    }
+
+    public HashMap<Vector2d, List<Animal>> getAnimalsOnMap(){
+        return this.animalsOnMap;
+    }
+
     public void generateStartAnimals(int numberOfStartingAnimals) {
         for (int i = 0; i < numberOfStartingAnimals; i++) {
             if (this.possibleJunglePositions.size() < 1) {
@@ -52,7 +99,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         }
     }
 
-    public List<Animal> getAnimalsOnMap() {
+    public List<Animal> getAnimalsOnMapList() {
         List<Animal> animalsOnMapList = new ArrayList<>();
 
         for (List<Animal> animals : this.animalsOnMap.values()) {
