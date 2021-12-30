@@ -114,13 +114,6 @@ public class SimulationEngine implements IEngine, Runnable{
                         }else{
                             this.wrappedMap.possibleStepPositions.remove(animal.getPosition());
                         }
-                        //TODO usuwac puste listy!!!
-//                        this.wrappedMap.elementsOnMap.get(animal.getPosition()).remove(animal);
-//                        this.wrappedMap.animalsOnMap.get(animal.getPosition()).remove(animal);
-//                        if(this.wrappedMap.elementsOnMap.get(animal.getPosition()).size() == 0){
-//                            this.wrappedMap.elementsOnMap.remove(animal.getPosition());
-//                            this.wrappedMap.animalsOnMap.remove(animal.getPosition());
-//                        }
                     }else{
                         this.animalsOnBoundedMap.remove(animal);
                         if(this.boundedMap.possibleJunglePositions.contains(animal.getPosition())){
@@ -128,13 +121,6 @@ public class SimulationEngine implements IEngine, Runnable{
                         }else{
                             this.boundedMap.possibleStepPositions.remove(animal.getPosition());
                         }
-                        //TODO usuwac puste listy!!!
-//                        this.boundedMap.elementsOnMap.get(animal.getPosition()).remove(animal);
-//                        this.boundedMap.animalsOnMap.get(animal.getPosition()).remove(animal);
-//                        if(this.boundedMap.elementsOnMap.get(animal.getPosition()).size() == 0){
-//                            this.boundedMap.elementsOnMap.remove(animal.getPosition());
-//                            this.boundedMap.animalsOnMap.remove(animal.getPosition());
-//                        }
                     }
 
                 }
@@ -190,8 +176,6 @@ public class SimulationEngine implements IEngine, Runnable{
             } catch (InterruptedException e) {
                 System.out.println("Simulation has been aborted");
             }
-
-
 
         }
 

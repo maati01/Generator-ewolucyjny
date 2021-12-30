@@ -18,6 +18,7 @@ public class Chart {
         lineChart.getData().add(series);
         this.lineChart.setPrefSize(150,200);
         this.series.getData().add(new XYChart.Data<>(0, 0));
+        this.lineChart.setCreateSymbols(false);
     }
 
     public void updateChart(Number x, Number y){

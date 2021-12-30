@@ -27,7 +27,7 @@ public class App extends Application implements IAnimalMoveObserver {
     Thread simulationEngineThread;
 
     int screenWidth = 1500;
-    int screenHeight = 700;
+    int screenHeight = 900;
     int mapWidth;
     int mapHeight;
     int fieldWidth;
@@ -84,7 +84,7 @@ public class App extends Application implements IAnimalMoveObserver {
             this.simulationEngineThread = new Thread(engine);
             engine.addObserver(this);
 
-            Scene scene = new Scene(this.gridPaneContainer,1500,700);
+            Scene scene = new Scene(this.gridPaneContainer,this.screenWidth,this.screenHeight);
             primaryStage.setScene(scene);
             primaryStage.show();
             simulationEngineThread.start();
@@ -123,7 +123,6 @@ public class App extends Application implements IAnimalMoveObserver {
         this.wrappedMapCharts.add(this.avgNumberOfChildrenWrappedMap = new Chart("Average number of children"));
         this.boundedMapCharts.add(this.avgNumberOfChildrenBoundedMap = new Chart("Average number of children"));
     }
-
 
     public void updateCharts(EpochStatistic statisticWrappedMap,EpochStatistic statisticBoundedMap){
         this.wrappedMapCharts.get(0).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getAllAnimalsMap());
@@ -244,10 +243,7 @@ public class App extends Application implements IAnimalMoveObserver {
             this.gridPaneForWrappedMap.getColumnConstraints().add(new ColumnConstraints(this.fieldWidth));
         }
 
-
         this.gridPaneForWrappedMap.setPadding(new Insets(0,20,0,20));
         this.gridPaneForBoundedMap.setPadding(new Insets(0,20,0,20));
     }
-
-
 }

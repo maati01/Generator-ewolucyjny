@@ -17,7 +17,6 @@ public class Reproduction {
             animals.sort((o1, o2) -> {
                 return Integer.compare(o2.getEnergy(), o1.getEnergy());
             });
-
             if (animals.size() >= 2) {
                 createChildren(new ArrayList<>(Arrays.asList(animals.get(0), animals.get(1))));
             }
@@ -45,7 +44,8 @@ public class Reproduction {
     }
 
     public void lostEnergy(Animal animal){
-        animal.setEnergy(animal.getEnergy()- animal.getEnergy()/4);
+        int energy = animal.getEnergy();
+        animal.setEnergy(energy - energy/4);
     }
 
     public void createChildren(List<Animal> animalsForReproduction){

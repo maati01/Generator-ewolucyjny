@@ -10,26 +10,19 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     protected final HashMap<Vector2d, List<Animal>> animalsOnMap = new HashMap<>();
     protected final HashMap<Vector2d, Grass> grassOnMap = new HashMap<>();
     protected int startEnergy;
-    //    protected Vector2d lowerLeft = new Vector2d(0, 0);
-//    protected Vector2d upperRight;
     protected int width;
     protected int height;
     protected double jungleRatio;
     protected int moveEnergy;
-    protected int plantEnergy;;
+    protected int plantEnergy;
+    ;
     protected HashSet<Vector2d> possibleStepPositions = new HashSet<>();
     protected HashSet<Vector2d> possibleJunglePositions = new HashSet<>();
-//    protected HashSet<Vector2d> allPossiblePositions = new HashSet<>();
-//    int rangeX;
-//    int rangeY;
     Vector2d jungleLowerLeft;
     Vector2d jungleUpperRight;
 
-    //TODO
-    //zmienic nazwe na steppe
-
-    public AbstractWorldMap(double jungleRatio,int width, int height, int numberOfStartingAnimals,int startEnergy,
-                            int moveEnergy, int plantEnergy){
+    public AbstractWorldMap(double jungleRatio, int width, int height, int numberOfStartingAnimals, int startEnergy,
+                            int moveEnergy, int plantEnergy) {
         this.jungleRatio = jungleRatio;
         this.width = width;
         this.height = height;
@@ -45,110 +38,82 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         this.width = width;
     }
 
-    public void setHeight(int height){
+    public void setHeight(int height) {
         this.height = height;
     }
 
-    public void generateStartAnimals(int numberOfStartingAnimals){
-        for(int i = 0; i < numberOfStartingAnimals; i++){ //TODO to musi byc w funkcji XD
-            if(this.possibleJunglePositions.size() < 1){
+    public void generateStartAnimals(int numberOfStartingAnimals) {
+        for (int i = 0; i < numberOfStartingAnimals; i++) {
+            if (this.possibleJunglePositions.size() < 1) {
                 return;
             }
             Vector2d newAnimaPosition = getRandom(this.possibleJunglePositions);
-            this.place(new Animal(this,newAnimaPosition,this.startEnergy));
-//            if(this.elementsOnMap.containsKey(newAnimaPosition)){
-//                this.elementsOnMap.get(newAnimaPosition).add(new Animal(newAnimaPosition));
-//            }else{
-//                this.elementsOnMap.put(newAnimaPosition, Collections.singletonList(new Animal(newAnimaPosition)));
-//
-//            }
-//            this.animalsOnMap.put(newAnimaPosition, new Animal(newAnimaPosition));
-//
-//            if (this.possibleJunglePositions.contains(newAnimaPosition)) {
-//
-//                this.possibleJunglePositions.remove(newAnimaPosition);
-//            }else{
-//                this.possibleStepPositions.remove(newAnimaPosition);
-//            }
+            this.place(new Animal(this, newAnimaPosition, this.startEnergy));
         }
     }
 
-    //TODO to jest raczej zbedne
-    public List<Animal> getAnimalsOnMap(){
+    public List<Animal> getAnimalsOnMap() {
         List<Animal> animalsOnMapList = new ArrayList<>();
 
-        for(List<Animal> animals : this.animalsOnMap.values()){
+        for (List<Animal> animals : this.animalsOnMap.values()) {
             animalsOnMapList.addAll(animals);
         }
 
         return animalsOnMapList;
     }
 
+    public void findJungleCorners() {
+        int a = (int) Math.floor(Math.sqrt(jungleRatio) * this.width);
+        int b = (int) Math.floor(Math.sqrt(jungleRatio) * this.height);
 
-    public void findJungleCorners(){
-        int a = (int) Math.floor(Math.sqrt(jungleRatio)*this.width);
-        int b = (int) Math.floor(Math.sqrt(jungleRatio)*this.height);
-
-        this.jungleLowerLeft = new Vector2d((width - a)/2,(height - b)/2);
-        this.jungleUpperRight = new Vector2d(this.jungleLowerLeft.x + a,b + this.jungleLowerLeft.y);
+        this.jungleLowerLeft = new Vector2d((width - a) / 2, (height - b) / 2);
+        this.jungleUpperRight = new Vector2d(this.jungleLowerLeft.x + a, b + this.jungleLowerLeft.y);
 
     }
 
-    public void addPositions(int i, int j){
-        if(i >= jungleLowerLeft.x && i <= jungleUpperRight.x && j >= jungleLowerLeft.y && j <= jungleUpperRight.y){
-            this.possibleJunglePositions.add(new Vector2d(i,j));
+    public void addPositions(int i, int j) {
+        if (i >= jungleLowerLeft.x && i <= jungleUpperRight.x && j >= jungleLowerLeft.y && j <= jungleUpperRight.y) {
+            this.possibleJunglePositions.add(new Vector2d(i, j));
+        } else {
+            this.possibleStepPositions.add(new Vector2d(i, j));
         }
-        else{
-            this.possibleStepPositions.add(new Vector2d(i,j));
-        }
-//        this.allPossiblePositions.add(new Vector2d(i,j)); //TODO to mozna chyba zrobic mergowaniem
     }
 
-    public boolean checkPointInJungle(int i, int j){
+    public boolean checkPointInJungle(int i, int j) {
         return i >= jungleLowerLeft.x && i <= jungleUpperRight.x && j >= jungleLowerLeft.y && j <= jungleUpperRight.y;
     }
 
-    public void findStepAndJunglePositions(){
-        for(int i = 0; i <= width; i++){
-            for(int j = 0; j <= height; j++){
-                addPositions(i,j);
+    public void findStepAndJunglePositions() {
+        for (int i = 0; i <= width; i++) {
+            for (int j = 0; j <= height; j++) {
+                addPositions(i, j);
             }
         }
     }
 
-
-    @Override
-    public boolean canMoveTo(Vector2d position) {
+    public void removeGrass(Vector2d position) {
         AbstractWorldMapElement object = objectAt(position);
-        if(object instanceof Grass){
+        if (object instanceof Grass) {
             this.elementsOnMap.remove(position);
         }
-        return true;
     }
 
     @Override
-    public boolean place(Animal animal) {
-        if(canMoveTo(animal.getPosition())){
-
-            if(this.elementsOnMap.containsKey(animal.getPosition())){
-                this.elementsOnMap.get(animal.getPosition()).add(animal);
-                this.animalsOnMap.get(animal.getPosition()).add(animal);
-            }else{
-                this.elementsOnMap.put(animal.getPosition(), new ArrayList<>(List.of(animal)));
-                this.animalsOnMap.put(animal.getPosition(), new ArrayList<>(List.of(animal)));
-            }
-
-
-            if (checkPointInJungle(animal.getPosition().x,animal.getPosition().y))
-            {
-                this.possibleJunglePositions.remove(animal.getPosition());
-            }
-            else{
-                this.possibleStepPositions.remove(animal.getPosition());
-            }
-            return true;
+    public void place(Animal animal) {
+        removeGrass(animal.getPosition());
+        if (this.elementsOnMap.containsKey(animal.getPosition())) {
+            this.elementsOnMap.get(animal.getPosition()).add(animal);
+            this.animalsOnMap.get(animal.getPosition()).add(animal);
+        } else {
+            this.elementsOnMap.put(animal.getPosition(), new ArrayList<>(List.of(animal)));
+            this.animalsOnMap.put(animal.getPosition(), new ArrayList<>(List.of(animal)));
         }
-        throw new IllegalArgumentException("Position " + animal.getPosition() + " is wrong. Here is another animal.");
+
+        if (checkPointInJungle(animal.getPosition().x, animal.getPosition().y)) {
+            this.possibleJunglePositions.remove(animal.getPosition());
+        } else {
+            this.possibleStepPositions.remove(animal.getPosition());
+        }
     }
 
     @Override
@@ -158,51 +123,50 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
     @Override
     public AbstractWorldMapElement objectAt(Vector2d position) {
-        if(this.elementsOnMap.get(position) != null){
+        if (this.elementsOnMap.get(position) != null) {
             return this.elementsOnMap.get(position).get(0);
-        }else{
+        } else {
             return null;
         }
     }
 
     @Override
-    public void positionChanged(Vector2d oldPosition, Vector2d newPosition,Animal animal) {
+    public void positionChanged(Vector2d oldPosition, Vector2d newPosition, Animal animal) {
         AbstractWorldMapElement object = objectAt(oldPosition);
+        removeGrass(newPosition);
+        if (object instanceof Animal) {
+            updateElementsOnMap(newPosition,oldPosition,animal);
+            updateAnimalsOnMap(newPosition,oldPosition,animal);
+        }
+    }
 
-        if(canMoveTo(newPosition)) {
-            if (object instanceof Animal) {
-                if(this.elementsOnMap.containsKey(oldPosition) && this.elementsOnMap.get(oldPosition).size() == 1){
-                    this.elementsOnMap.remove(oldPosition);
-
-                }else{
-                    this.elementsOnMap.get(oldPosition).remove(animal);
-                }
-
-                //TODO
-                //tutaj jest gdzie bląd
-
-                if(this.animalsOnMap.containsKey(oldPosition) && this.animalsOnMap.get(oldPosition).size() == 1){
-                    this.animalsOnMap.remove(oldPosition);
-                }else{
-                    System.out.println(this.animalsOnMap);
-                    this.animalsOnMap.get(oldPosition).remove(animal);
-                }
-
-                if(this.elementsOnMap.containsKey(newPosition)) { //here np
-                    this.elementsOnMap.get(newPosition).add(animal);
-
-                }
-                else {
-                    this.elementsOnMap.put(newPosition, new ArrayList<>(List.of(animal)));
-
-                }
-                if( this.animalsOnMap.containsKey(newPosition)){
-                    this.animalsOnMap.get(newPosition).add(animal);
-                }
-                else{
-                    this.animalsOnMap.put(newPosition, new ArrayList<>(List.of(animal)));
-                }
+    public void updateElementsOnMap(Vector2d newPosition, Vector2d oldPosition, Animal animal){
+        if(this.elementsOnMap.containsKey(oldPosition)){
+            this.elementsOnMap.get(oldPosition).remove(animal);
+            if (this.elementsOnMap.get(oldPosition).size() == 0){
+                this.elementsOnMap.remove(oldPosition);
             }
+        }
+        if(this.elementsOnMap.containsKey(newPosition)) {
+            this.elementsOnMap.get(newPosition).add(animal);
+        }
+        else {
+            this.elementsOnMap.put(newPosition, new ArrayList<>(List.of(animal)));
+        }
+    }
+
+    public void updateAnimalsOnMap(Vector2d newPosition, Vector2d oldPosition, Animal animal){
+        if(this.animalsOnMap.containsKey(oldPosition)){
+            this.animalsOnMap.get(oldPosition).remove(animal);
+            if (this.animalsOnMap.get(oldPosition).size() == 0){
+                this.animalsOnMap.remove(oldPosition);
+            }
+        }
+        if( this.animalsOnMap.containsKey(newPosition)){
+            this.animalsOnMap.get(newPosition).add(animal);
+        }
+        else{
+            this.animalsOnMap.put(newPosition, new ArrayList<>(List.of(animal)));
         }
     }
 
@@ -212,45 +176,41 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         return arrayNumbers[rnd];
     }
 
-    public void generateGrass(){
+    public void generateGrass() {
         if (this.possibleJunglePositions.size() > 0) {
             Vector2d jungleGrassPosition = getRandom(this.possibleJunglePositions);
+            addGrassOnMap(this.elementsOnMap,jungleGrassPosition);
 
-            if(this.elementsOnMap.containsKey(jungleGrassPosition)){
-                this.elementsOnMap.get(jungleGrassPosition).add(new Grass(jungleGrassPosition,this.plantEnergy));
-            }else{
-                this.elementsOnMap.put(jungleGrassPosition, Collections.singletonList(new Grass(jungleGrassPosition,this.plantEnergy)));
-
-            }
-
-            this.grassOnMap.put(jungleGrassPosition, new Grass(jungleGrassPosition,this.plantEnergy));
+            this.grassOnMap.put(jungleGrassPosition, new Grass(jungleGrassPosition, this.plantEnergy));
             this.possibleJunglePositions.remove(jungleGrassPosition);
         }
 
-        if(this.possibleStepPositions.size() > 0){
+        if (this.possibleStepPositions.size() > 0) {
             Vector2d stepGrassPosition = getRandom(this.possibleStepPositions);
+            addGrassOnMap(this.elementsOnMap,stepGrassPosition);
 
-            if(this.elementsOnMap.containsKey(stepGrassPosition)){
-                this.elementsOnMap.get(stepGrassPosition).add(new Grass(stepGrassPosition,this.plantEnergy));
-            }else{
-                this.elementsOnMap.put(stepGrassPosition, Collections.singletonList(new Grass(stepGrassPosition,this.plantEnergy)));
-
-            }
-            this.grassOnMap.put(stepGrassPosition, new Grass(stepGrassPosition,this.plantEnergy));
+            this.grassOnMap.put(stepGrassPosition, new Grass(stepGrassPosition, this.plantEnergy));
             this.possibleStepPositions.remove(stepGrassPosition);
         }
     }
 
-    public Animal getAnimalOnMap(Vector2d vector2d){
-        if(this.animalsOnMap.containsKey(vector2d)){
-            return this.animalsOnMap.get(vector2d).get(0);
+    public void addGrassOnMap(HashMap<Vector2d,List<AbstractWorldMapElement>> set,Vector2d position){
+        if (set.containsKey(position)) {
+            set.get(position).add(new Grass(position, this.plantEnergy));
+        } else {
+            set.put(position, Collections.singletonList(new Grass(position, this.plantEnergy)));
         }
-        else{
+    }
+
+    public Animal getAnimalOnMap(Vector2d vector2d) {
+        if (this.animalsOnMap.containsKey(vector2d)) {
+            return this.animalsOnMap.get(vector2d).get(0);
+        } else {
             return null;
         }
     }
 
-    public Grass getGrassOnMap(Vector2d vector2d){
+    public Grass getGrassOnMap(Vector2d vector2d) {
         return this.grassOnMap.getOrDefault(vector2d, null);
     }
 }
