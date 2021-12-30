@@ -32,20 +32,6 @@ public class SimulationEngine implements IEngine, Runnable{
 
     public List<Animal> getAnimalsOnBoundedMap(){ return this.animalsOnBoundedMap;}
 
-//    public SimulationEngine(List<MoveDirection> moves,AbstractWorldMap map, List<Vector2d> positions){
-//        this.moves = moves;
-//        this.map = map;
-//        this.animals = new ArrayList<>();
-//
-//        for(Vector2d vector2d: positions){
-//            Animal animal = new Animal(this.map,vector2d,100);
-//            if(map.place(animal)){
-//                animal.addObserver(map);
-//                this.animals.add(animal);
-//
-//            }
-//        }
-//    }
 
     public SimulationEngine(AbstractWorldMap wrappedMap,AbstractWorldMap boundedMap){
         this.wrappedMap = wrappedMap;
@@ -56,17 +42,6 @@ public class SimulationEngine implements IEngine, Runnable{
         this.reproductionAnimalsOnWrappedMap = new Reproduction(this.wrappedMap);
         this.epochStatisticWrappedMap = new EpochStatistic(this.wrappedMap);
         this.epochStatisticBoundedMap = new EpochStatistic(this.boundedMap);
-
-
-//        for(Vector2d vector2d: positions){
-//            Animal animalOnWrappedMap = new Animal(this.wrappedMap,vector2d,10);
-//            Animal animalOnBoundedMap = new Animal(this.boundedMap,vector2d,10);
-//            this.wrappedMap.place(animalOnWrappedMap);
-//            this.animalsOnWrappedMap.add(animalOnWrappedMap);
-//            this.boundedMap.place(animalOnBoundedMap);
-//            this.animalsOnBoundedMap.add(animalOnBoundedMap);
-//            }
-
         }
 
     public List<Animal> findAnimalsThatEatGrass(List<Animal> animals){
