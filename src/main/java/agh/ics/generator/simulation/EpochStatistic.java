@@ -20,7 +20,7 @@ public class EpochStatistic {
 
     public void updateStatistic(){
         this.day += 1;
-        this.allAnimalsMap = this.map.getAnimalsOnMap().size();
+        this.allAnimalsMap = this.map.getAnimalsOnMapList().size();
         this.allGrassMap = this.map.getGrassOnMap().size();
         this.avgAnimalsEnergyMap = this.map.getAnimalsOnMapList().stream().mapToDouble(Animal::getEnergy).average();
         this.lifeExpectancyMap = this.map.getAnimalsOnMapList().stream().mapToDouble(Animal::getDayOfLife).average();

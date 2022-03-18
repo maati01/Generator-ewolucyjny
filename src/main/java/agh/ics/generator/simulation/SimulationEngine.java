@@ -88,19 +88,12 @@ public class SimulationEngine implements IEngine, Runnable{
                 if (animal.getEnergy() == 0) {
                     i.remove();
                     if(map instanceof WrappedGrassField){
+                        this.wrappedMap.removeAnimalFromMap(animal.getPosition(),animal);
                         this.animalsOnWrappedMap.remove(animal);
-                        if(this.wrappedMap.getPossibleJunglePositions().contains(animal.getPosition())){
-                            this.wrappedMap.getPossibleJunglePositions().remove(animal.getPosition());
-                        }else{
-                            this.wrappedMap.getPossibleStepPositions().remove(animal.getPosition());
-                        }
+
                     }else{
+                        this.boundedMap.removeAnimalFromMap(animal.getPosition(), animal);
                         this.animalsOnBoundedMap.remove(animal);
-                        if(this.boundedMap.getPossibleJunglePositions().contains(animal.getPosition())){
-                            this.boundedMap.getPossibleJunglePositions().remove(animal.getPosition());
-                        }else{
-                            this.boundedMap.getPossibleStepPositions().remove(animal.getPosition());
-                        }
                     }
 
                 }
@@ -122,6 +115,7 @@ public class SimulationEngine implements IEngine, Runnable{
         this.animalsOnBoundedMap = this.boundedMap.getAnimalsOnMapList();
         this.epochStatisticBoundedMap.updateStatistic();
         this.epochStatisticWrappedMap.updateStatistic();
+
     }
 
     @Override
@@ -154,7 +148,6 @@ public class SimulationEngine implements IEngine, Runnable{
             try {
                 TimeUnit.MILLISECONDS.sleep(this.moveDelay);
             } catch (InterruptedException e) {
-                System.out.println("Simulation has been aborted");
             }
 
         }

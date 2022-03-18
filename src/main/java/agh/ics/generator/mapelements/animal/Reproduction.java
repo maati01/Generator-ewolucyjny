@@ -1,7 +1,7 @@
 package agh.ics.generator.mapelements.animal;
 
-import agh.ics.generator.maps.AbstractWorldMap;
 import agh.ics.generator.mapelements.Vector2d;
+import agh.ics.generator.maps.AbstractWorldMap;
 
 import java.util.*;
 
@@ -16,13 +16,19 @@ public class Reproduction {
     }
 
     public void doReproduction(HashMap<Vector2d, List<Animal>> animalsOnMap){
+        List<List<Animal>> parents = new ArrayList<>();
+
         for(List<Animal> animals : animalsOnMap.values()) {
             animals.sort((o1, o2) -> {
                 return Integer.compare(o2.getEnergy(), o1.getEnergy());
             });
             if (animals.size() >= 2) {
-                createChildren(new ArrayList<>(Arrays.asList(animals.get(0), animals.get(1))));
+                parents.add(animals);
+//                createChildren(new ArrayList<>(Arrays.asList(animals.get(0), animals.get(1))));
             }
+        }
+        for(List<Animal> parent :parents){
+            createChildren(new ArrayList<>(Arrays.asList(parent.get(0), parent.get(1))));
         }
 
     }

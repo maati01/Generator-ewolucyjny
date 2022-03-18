@@ -28,8 +28,8 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     public AbstractWorldMap(double jungleRatio, int width, int height, int numberOfStartingAnimals, int startEnergy,
                             int moveEnergy, int plantEnergy) {
         this.jungleRatio = jungleRatio;
-        this.width = width;
-        this.height = height;
+        this.width = width-1;
+        this.height = height-1;
         this.moveEnergy = moveEnergy;
         this.plantEnergy = plantEnergy;
         this.startEnergy = startEnergy;
@@ -149,6 +149,9 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     public void place(Animal animal) {
         removeGrass(animal.getPosition());
         if (this.elementsOnMap.containsKey(animal.getPosition())) {
+            if(this.elementsOnMap.get(animal.getPosition()) == null || this.animalsOnMap.get(animal.getPosition()) == null){
+                System.out.println("ERRROR");
+            }
             this.elementsOnMap.get(animal.getPosition()).add(animal);
             this.animalsOnMap.get(animal.getPosition()).add(animal);
         } else {
@@ -181,10 +184,12 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     public void positionChanged(Vector2d oldPosition, Vector2d newPosition, Animal animal) {
         AbstractWorldMapElement object = objectAt(oldPosition);
         removeGrass(newPosition);
+//        System.out.println(elementsOnMap);
         if (object instanceof Animal) {
             updateElementsOnMap(newPosition,oldPosition,animal);
             updateAnimalsOnMap(newPosition,oldPosition,animal);
         }
+//        System.out.println(elementsOnMap);
     }
 
     public void updateElementsOnMap(Vector2d newPosition, Vector2d oldPosition, Animal animal){
@@ -192,6 +197,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             this.elementsOnMap.get(oldPosition).remove(animal);
             if (this.elementsOnMap.get(oldPosition).size() == 0){
                 this.elementsOnMap.remove(oldPosition);
+                this.addPositions(oldPosition.x,oldPosition.y);
             }
         }
         if(this.elementsOnMap.containsKey(newPosition)) {
@@ -207,6 +213,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             this.animalsOnMap.get(oldPosition).remove(animal);
             if (this.animalsOnMap.get(oldPosition).size() == 0){
                 this.animalsOnMap.remove(oldPosition);
+                this.addPositions(oldPosition.x,oldPosition.y);
             }
         }
         if( this.animalsOnMap.containsKey(newPosition)){
@@ -254,6 +261,16 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             return this.animalsOnMap.get(vector2d).get(0);
         } else {
             return null;
+        }
+    }
+
+    public void removeAnimalFromMap(Vector2d position, Animal animal){
+        if(this.elementsOnMap.containsKey(position)){
+            this.elementsOnMap.get(position).remove(animal);
+            if (this.elementsOnMap.get(position).size() == 0){
+                this.elementsOnMap.remove(position);
+                this.addPositions(position.x,position.y);
+            }
         }
     }
 
