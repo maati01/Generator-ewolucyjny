@@ -250,6 +250,5 @@ public class Animal extends AbstractWorldMapElement {
             else{
                 this.map.getPossibleStepPositions().remove(new Vector2d(newPosition.x,newPosition.y));
             }
-
     }
 }}
