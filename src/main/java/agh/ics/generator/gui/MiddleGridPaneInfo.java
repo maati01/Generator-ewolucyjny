@@ -11,10 +11,18 @@ import javafx.scene.text.Font;
 
 public class MiddleGridPaneInfo extends GridPane {
     Label mapTitle;
-    Button save;
-    Button pause;
+    public Button save;
+    public Button pause;
     CheckBox normalEvolution;
     CheckBox magicEvolution;
+
+    public Button getSave(){
+        return this.save;
+    }
+
+    public Button getPause(){
+        return this.pause;
+    }
 
     public MiddleGridPaneInfo(String mapTitle){
         this.mapTitle = new Label(mapTitle);

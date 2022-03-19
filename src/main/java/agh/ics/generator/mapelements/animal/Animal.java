@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 public class Animal extends AbstractWorldMapElement {
     private MapDirection vector;
     private Vector2d position;
-    private final AbstractWorldMap map;
+    private AbstractWorldMap map;
     private final List<IPositionChangeObserver> observers = new ArrayList<>();
-    private final List<Integer> genes;
+    private List<Integer> genes;
     private int energy;
     private int dayOfLife = 1;
     private int numberOfChildren = 0;
@@ -28,6 +28,9 @@ public class Animal extends AbstractWorldMapElement {
     //sprawdzac gdzie dodawac pozycje po position change
     //uzyc tutaj klasy genotyp
 
+    public Animal(){
+
+    }
 
     //konstruktor uzywany jest przy repordukcji
     public Animal(AbstractWorldMap map, int energy, Genotype genotype, Vector2d position) {

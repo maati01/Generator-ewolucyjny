@@ -1,5 +1,6 @@
 package agh.ics.generator.simulation;
 
+import agh.ics.generator.gui.ChartHandler;
 import agh.ics.generator.mapelements.animal.Animal;
 import agh.ics.generator.maps.AbstractWorldMap;
 
@@ -13,9 +14,12 @@ public class EpochStatistic {
     private OptionalDouble avgAnimalsEnergyMap = OptionalDouble.of(0);
     private OptionalDouble lifeExpectancyMap = OptionalDouble.of(0);
     private OptionalDouble numberOfChildrenMap = OptionalDouble.of(0);
+    ChartHandler chartHandler;
 
     public EpochStatistic(AbstractWorldMap map){
         this.map = map;
+        this.chartHandler = new ChartHandler(this.map);
+//        this.boundedMapChartHandler = new ChartHandler(this.wrappedMap);
     }
 
     public void updateStatistic(){

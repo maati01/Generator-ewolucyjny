@@ -1,8 +1,12 @@
 package agh.ics.generator.mapelements;
 
 public class Grass extends AbstractWorldMapElement {
-    private final Vector2d position;
-    private final int plantEnergy;
+    private Vector2d position;
+    private int plantEnergy;
+
+    public Grass(){
+
+    }
 
     public Grass(Vector2d position,int plantEnergy){
         this.position = position;

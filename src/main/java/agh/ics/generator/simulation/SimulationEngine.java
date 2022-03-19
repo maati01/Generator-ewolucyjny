@@ -1,12 +1,12 @@
 package agh.ics.generator.simulation;
 
+import agh.ics.generator.gui.ChartHandler;
+import agh.ics.generator.interfaces.IAnimalMoveObserver;
+import agh.ics.generator.interfaces.IEngine;
 import agh.ics.generator.mapelements.Vector2d;
 import agh.ics.generator.mapelements.animal.Animal;
 import agh.ics.generator.mapelements.animal.Reproduction;
 import agh.ics.generator.maps.AbstractWorldMap;
-import agh.ics.generator.maps.WrappedGrassField;
-import agh.ics.generator.interfaces.IAnimalMoveObserver;
-import agh.ics.generator.interfaces.IEngine;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,35 +14,28 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class SimulationEngine implements IEngine, Runnable{
-    private final AbstractWorldMap wrappedMap;
-    private final AbstractWorldMap boundedMap;
-    private List<Animal> animalsOnWrappedMap;
-    private List<Animal> animalsOnBoundedMap;
+    private final AbstractWorldMap map;
+    private List<Animal> animalsOnMap;
     private final List<IAnimalMoveObserver> observers = new ArrayList<>();
     private final int moveDelay = 200;
-    private final Reproduction reproductionAnimalsOnWrappedMap;
-    private final Reproduction reproductionAnimalsOnBoundedMap;
-    private final EpochStatistic epochStatisticWrappedMap;
-    private final EpochStatistic epochStatisticBoundedMap;
+    private final Reproduction reproduction;
+    private final EpochStatistic epochStatistic;
+    public boolean isPaused = false;
+
+    ChartHandler chartHandler;
 
 
-    public List<Animal> getAnimalsOnWrappedMap() {
-        return this.animalsOnWrappedMap;
+    public List<Animal> getAnimalsOnMap() {
+        return this.animalsOnMap;
     }
 
-    public List<Animal> getAnimalsOnBoundedMap(){ return this.animalsOnBoundedMap;}
-
-
-    public SimulationEngine(AbstractWorldMap wrappedMap,AbstractWorldMap boundedMap){
-        this.wrappedMap = wrappedMap;
-        this.boundedMap = boundedMap;
-        this.animalsOnWrappedMap = new ArrayList<>();
-        this.animalsOnBoundedMap = new ArrayList<>();
-        this.reproductionAnimalsOnBoundedMap = new Reproduction(this.boundedMap);
-        this.reproductionAnimalsOnWrappedMap = new Reproduction(this.wrappedMap);
-        this.epochStatisticWrappedMap = new EpochStatistic(this.wrappedMap);
-        this.epochStatisticBoundedMap = new EpochStatistic(this.boundedMap);
-        }
+    public SimulationEngine(AbstractWorldMap map, ChartHandler chartHandler){
+        this.map = map;
+        this.animalsOnMap = new ArrayList<>();
+        this.reproduction = new Reproduction(this.map);
+        this.epochStatistic = new EpochStatistic(this.map);
+        this.chartHandler = chartHandler;
+    }
 
     public List<Animal> findAnimalsThatEatGrass(List<Animal> animals){
         List<Animal> foundAnimals = new ArrayList<>();
@@ -60,8 +53,34 @@ public class SimulationEngine implements IEngine, Runnable{
         return foundAnimals;
     }
 
-    public void eatGrass(AbstractWorldMap map){
+    public void pause() {
+        this.isPaused = true;
+    }
 
+    public void resume() {
+        this.isPaused = false;
+        synchronized (this) {
+            notify();
+        }
+    }
+
+    public boolean isPaused() {
+        return isPaused;
+    }
+
+    private void pauseIfRequested() {
+        synchronized (this) {
+            while (this.isPaused) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void eatGrass(AbstractWorldMap map){
         for (Vector2d vector2d: map.getAnimalsOnMap().keySet()){
             map.getAnimalsOnMap().get(vector2d).sort((o1, o2) -> {
                 return Integer.compare(o2.getEnergy(),o1.getEnergy());
@@ -81,21 +100,14 @@ public class SimulationEngine implements IEngine, Runnable{
 
     }
 
-    public void removeAnimalsFromMap(AbstractWorldMap map){
-        for(List<Animal> animals: map.getAnimalsOnMap().values()){
+    public void removeAnimalsFromMap(){
+        for(List<Animal> animals: this.map.getAnimalsOnMap().values()){
             for (Iterator<Animal> i = animals.iterator(); i.hasNext();) {
                 Animal animal = i.next();
                 if (animal.getEnergy() == 0) {
                     i.remove();
-                    if(map instanceof WrappedGrassField){
-                        this.wrappedMap.removeAnimalFromMap(animal.getPosition(),animal);
-                        this.animalsOnWrappedMap.remove(animal);
-
-                    }else{
-                        this.boundedMap.removeAnimalFromMap(animal.getPosition(), animal);
-                        this.animalsOnBoundedMap.remove(animal);
-                    }
-
+                    this.map.removeAnimalFromMap(animal.getPosition(),animal);
+                    this.animalsOnMap.remove(animal);
                 }
             }
         }
@@ -103,46 +115,34 @@ public class SimulationEngine implements IEngine, Runnable{
     }
 
     public void simulationEpoch(){
-        this.boundedMap.generateGrass();
-        this.wrappedMap.generateGrass();
-        eatGrass(this.boundedMap);
-        eatGrass(this.wrappedMap);
-        removeAnimalsFromMap(this.boundedMap);
-        removeAnimalsFromMap(this.wrappedMap);
-        reproductionAnimalsOnWrappedMap.doReproduction(this.wrappedMap.getAnimalsOnMap());
-        reproductionAnimalsOnBoundedMap.doReproduction(this.boundedMap.getAnimalsOnMap());
-        this.animalsOnWrappedMap = this.wrappedMap.getAnimalsOnMapList();
-        this.animalsOnBoundedMap = this.boundedMap.getAnimalsOnMapList();
-        this.epochStatisticBoundedMap.updateStatistic();
-        this.epochStatisticWrappedMap.updateStatistic();
-
+        this.map.generateGrass();
+        eatGrass(this.map);
+        removeAnimalsFromMap();
+        reproduction.doReproduction(this.map.getAnimalsOnMap());
+        this.animalsOnMap = this.map.getAnimalsOnMapList();
+        this.epochStatistic.updateStatistic();
     }
 
     @Override
     public void run() {
-        int size1;
-        int size2;
+        int size;
 
-        for(IAnimalMoveObserver observer : observers) {
-            observer.animalMove(this.epochStatisticWrappedMap,this.epochStatisticBoundedMap);
+        for(IAnimalMoveObserver observer : this.observers) {
+            observer.animalMove(this.epochStatistic,this.chartHandler);
         }
 
-
         while(true){
-            size1 = this.animalsOnWrappedMap.size();
-            size2 = this.animalsOnBoundedMap.size();
+            size = this.animalsOnMap.size();
 
-            for(int i = 0;i < size1; i++){
-                this.animalsOnWrappedMap.get(i).move();
+            for(int i = 0;i < size; i++){
+                this.animalsOnMap.get(i).move();
             }
 
-            for(int i = 0;i < size2; i++){
-                this.animalsOnBoundedMap.get(i).move();
-            }
             simulationEpoch();
+            pauseIfRequested();
 
             for(IAnimalMoveObserver observer : this.observers) {
-                observer.animalMove(this.epochStatisticWrappedMap,this.epochStatisticBoundedMap);
+                observer.animalMove(this.epochStatistic,this.chartHandler);
             }
 
             try {
@@ -162,4 +162,3 @@ public class SimulationEngine implements IEngine, Runnable{
         this.observers.remove(observer);
     }
 }
-

@@ -1,12 +1,12 @@
 package agh.ics.generator.gui;
 
 
+import agh.ics.generator.interfaces.IAnimalMoveObserver;
 import agh.ics.generator.mapelements.AbstractWorldMapElement;
 import agh.ics.generator.mapelements.Vector2d;
 import agh.ics.generator.maps.AbstractWorldMap;
 import agh.ics.generator.maps.BoundedGrassField;
 import agh.ics.generator.maps.WrappedGrassField;
-import agh.ics.generator.interfaces.IAnimalMoveObserver;
 import agh.ics.generator.simulation.EpochStatistic;
 import agh.ics.generator.simulation.SimulationEngine;
 import javafx.application.Application;
@@ -20,17 +20,16 @@ import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 
 public class App extends Application implements IAnimalMoveObserver {
     private final GridPane gridPaneContainer = new GridPane();
     private final GridPane gridPaneForWrappedMap = new GridPane();
     private final GridPane gridPaneForBoundedMap = new GridPane();
-    LowerGridPaneInfo gridLowerInfoWrappedMap;
 
     private AbstractWorldMap wrappedMap;
     private AbstractWorldMap boundedMap;
-    Thread simulationEngineThread;
+    Thread simulationEngineThreadWrappedMap;
+    Thread simulationEngineThreadBoundedMap;
 
     int screenWidth = 1500;
     int screenHeight = 900;
@@ -46,26 +45,20 @@ public class App extends Application implements IAnimalMoveObserver {
     int imageWidth;
     int imageHeight;
 
-    Chart chartAllAnimalsWrappedMap;
-    Chart chartAllAnimalsBoundedMap;
-    Chart chartAllGrassWrappedMap;
-    Chart chartAllGrassBoundedMap;
-    Chart chartAvgAnimalsEnergyWrappedMap;
-    Chart chartAvgAnimalsEnergyBoundedMap;
-    Chart chartLifeExpectancyWrappedMap;
-    Chart chartLifeExpectancyBoundedMap;
-    Chart avgNumberOfChildrenWrappedMap;
-    Chart avgNumberOfChildrenBoundedMap;
+    ChartHandler wrappedMapChartUpdate;
+    ChartHandler boundedMapChartUpdate;
 
-    ArrayList<Chart> wrappedMapCharts = new ArrayList<>();
-    ArrayList<Chart> boundedMapCharts = new ArrayList<>();
+    MiddleGridPaneInfo gridInfoWrappedMap;
+    MiddleGridPaneInfo gridInfoBoundedMap;
+
+    SimulationEngine wrappedMapEngine;
+    SimulationEngine boundedMapEngine;
 
     @Override
     public void init() throws Exception {
         try {
             Platform.setImplicitExit(false);
-            createCharts();
-            prepareLayout();
+
         } catch (IllegalArgumentException ex) {
             System.out.println(ex.getMessage());
         }
@@ -86,27 +79,38 @@ public class App extends Application implements IAnimalMoveObserver {
             this.boundedMap = new BoundedGrassField(this.jungleRatio,this.mapWidth,this.mapHeight,
                     this.numberOfStartingAnimals,this.startEnergy,this.moveEnergy,this.plantEnergy);
 
-            SimulationEngine engine = new SimulationEngine(this.wrappedMap,this.boundedMap);
-            this.simulationEngineThread = new Thread(engine);
-            engine.addObserver(this);
+            this.wrappedMapChartUpdate = new ChartHandler(this.wrappedMap);
+            this.boundedMapChartUpdate = new ChartHandler(this.wrappedMap);
+            prepareLayout();
+
+            this.wrappedMapEngine = new SimulationEngine(this.wrappedMap, this.wrappedMapChartUpdate);
+            this.boundedMapEngine = new SimulationEngine(this.boundedMap, this.boundedMapChartUpdate);
+            this.simulationEngineThreadWrappedMap = new Thread(wrappedMapEngine);
+            this.simulationEngineThreadBoundedMap = new Thread(boundedMapEngine);
+            wrappedMapEngine.addObserver(this);
+            boundedMapEngine.addObserver(this);
 
             Scene scene = new Scene(this.gridPaneContainer,this.screenWidth,this.screenHeight);
             primaryStage.setScene(scene);
             primaryStage.show();
-            simulationEngineThread.start();
-        });
+            this.simulationEngineThreadWrappedMap.start();
+            this.simulationEngineThreadBoundedMap.start();
 
+            buttonsHandler();
+
+        });
         Scene scene = new Scene(input.getTilePane(), 400, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
 
+
     }
 
     public void prepareLayout(){
-        MiddleGridPaneInfo gridInfoWrappedMap = new MiddleGridPaneInfo("Wrapped map");
-        MiddleGridPaneInfo gridInfoBoundedMap = new MiddleGridPaneInfo("Bounded map");
-        LowerGridPaneInfo gridLowerInfoWrappedMap = new LowerGridPaneInfo(this.wrappedMapCharts);
-        LowerGridPaneInfo gridLowerInfoBoundedMap = new LowerGridPaneInfo(this.boundedMapCharts);
+        this.gridInfoWrappedMap = new MiddleGridPaneInfo("Wrapped map");
+        this.gridInfoBoundedMap = new MiddleGridPaneInfo("Bounded map");
+        LowerGridPaneInfo gridLowerInfoWrappedMap = new LowerGridPaneInfo(this.wrappedMapChartUpdate.getMapCharts());
+        LowerGridPaneInfo gridLowerInfoBoundedMap = new LowerGridPaneInfo(this.boundedMapChartUpdate.getMapCharts());
 
         this.gridPaneContainer.add(gridInfoWrappedMap,1,0);
         this.gridPaneContainer.add(gridInfoBoundedMap,3,0);
@@ -117,32 +121,6 @@ public class App extends Application implements IAnimalMoveObserver {
         this.gridPaneContainer.add(this.gridPaneForBoundedMap,2,0,1,1);
     }
 
-    public void createCharts(){
-        this.wrappedMapCharts.add(this.chartAllAnimalsWrappedMap = new Chart("Number of animals"));
-        this.boundedMapCharts.add(this.chartAllAnimalsBoundedMap = new Chart("Number of animals"));
-        this.wrappedMapCharts.add(this.chartAllGrassWrappedMap = new Chart("Number of grass"));
-        this.boundedMapCharts.add(this.chartAllGrassBoundedMap = new Chart("Number of grass"));
-        this.wrappedMapCharts.add(this.chartAvgAnimalsEnergyWrappedMap = new Chart("Average energy level"));
-        this.boundedMapCharts.add(this.chartAvgAnimalsEnergyBoundedMap = new Chart("Average energy level"));
-        this.wrappedMapCharts.add(this.chartLifeExpectancyWrappedMap = new Chart("Average life length"));
-        this.boundedMapCharts.add(this.chartLifeExpectancyBoundedMap = new Chart("Average life length"));
-        this.wrappedMapCharts.add(this.avgNumberOfChildrenWrappedMap = new Chart("Average number of children"));
-        this.boundedMapCharts.add(this.avgNumberOfChildrenBoundedMap = new Chart("Average number of children"));
-    }
-
-    public void updateCharts(EpochStatistic statisticWrappedMap, EpochStatistic statisticBoundedMap){
-        this.wrappedMapCharts.get(0).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getAllAnimalsMap());
-        this.wrappedMapCharts.get(1).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getAllGrassMap());
-        this.wrappedMapCharts.get(2).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getAvgAnimalsEnergyMap().orElse(-1));
-        this.wrappedMapCharts.get(3).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getLifeExpectancyMap().orElse(-1));
-        this.wrappedMapCharts.get(4).updateChart(statisticWrappedMap.getDay(),statisticWrappedMap.getNumberOfChildrenMap().orElse(-1));
-        this.boundedMapCharts.get(0).updateChart(statisticBoundedMap.getDay(),statisticBoundedMap.getAllAnimalsMap());
-        this.boundedMapCharts.get(1).updateChart(statisticBoundedMap.getDay(),statisticBoundedMap.getAllGrassMap());
-        this.boundedMapCharts.get(2).updateChart(statisticBoundedMap.getDay(),statisticBoundedMap.getAvgAnimalsEnergyMap().orElse(-1));
-        this.boundedMapCharts.get(3).updateChart(statisticBoundedMap.getDay(),statisticBoundedMap.getLifeExpectancyMap().orElse(-1));
-        this.boundedMapCharts.get(4).updateChart(statisticBoundedMap.getDay(),statisticBoundedMap.getNumberOfChildrenMap().orElse(-1));
-
-    }
 
     public void setInputSettings(InputSettings input){
         this.mapWidth = Integer.parseInt(input.getWidth().getText());
@@ -162,7 +140,7 @@ public class App extends Application implements IAnimalMoveObserver {
     }
 
     @Override
-    public void animalMove(EpochStatistic statisticWrappedMap,EpochStatistic statisticBoundedMap) {
+    public void animalMove(EpochStatistic statistic, ChartHandler chartHandler) {
         Platform.runLater(() -> {
             this.gridPaneForWrappedMap.getChildren().clear();
             this.gridPaneForBoundedMap.getChildren().clear();
@@ -170,8 +148,7 @@ public class App extends Application implements IAnimalMoveObserver {
             this.gridPaneForBoundedMap.getRowConstraints().clear();
             this.gridPaneForBoundedMap.getColumnConstraints().clear();
             this.gridPaneForWrappedMap.getColumnConstraints().clear();
-            showResult(statisticWrappedMap,statisticBoundedMap);});
-
+            showResult(statistic, chartHandler);});
     }
 
     public void drawGrid() {
@@ -205,7 +182,7 @@ public class App extends Application implements IAnimalMoveObserver {
         }
 
         if(object != null) {
-            GuiElementBox guiElement = new GuiElementBox(object,this.imageWidth,this.imageHeight);
+            GuiElementBox guiElement = new GuiElementBox(object,imageWidth,imageHeight);
             try {
                 this.gridPaneForWrappedMap.add(guiElement.getImage(), i, this.mapHeight - j - 1);
             } catch (FileNotFoundException e) {
@@ -220,11 +197,12 @@ public class App extends Application implements IAnimalMoveObserver {
             object = this.boundedMap.getAnimalOnMap(vector);
         }else if(this.boundedMap.getGrassOnMap(vector) != null){
             object = this.boundedMap.getGrassOnMap(vector);
-        }else{
+        }else {
             object = null;
         }
+
         if(object != null) {
-            GuiElementBox guiElement = new GuiElementBox(object,this.imageWidth,this.imageHeight);
+            GuiElementBox guiElement = new GuiElementBox(object,imageWidth,imageHeight);
             try {
                 this.gridPaneForBoundedMap.add(guiElement.getImage(), i,
                         this.mapHeight - j - 1);
@@ -232,11 +210,12 @@ public class App extends Application implements IAnimalMoveObserver {
                 e.printStackTrace();
             }
         }
+
     }
-    public void showResult(EpochStatistic statisticWrappedMap,EpochStatistic statisticBoundedMap) {
+    public void showResult(EpochStatistic statistic, ChartHandler chartHandler) {
         drawGrid();
         setConstraintsMaps();
-        updateCharts(statisticWrappedMap,statisticBoundedMap);
+        chartHandler.updateCharts(statistic);
     }
 
     public void setConstraintsMaps() {
@@ -251,5 +230,29 @@ public class App extends Application implements IAnimalMoveObserver {
 
         this.gridPaneForWrappedMap.setPadding(new Insets(0,20,0,20));
         this.gridPaneForBoundedMap.setPadding(new Insets(0,20,0,20));
+    }
+
+    public void buttonsHandler(){
+        this.gridInfoWrappedMap.pause.setOnAction(event -> {
+            if (!wrappedMapEngine.isPaused()) {
+                this.gridInfoWrappedMap.pause.setText("Resume");
+                this.wrappedMapEngine.pause();
+            }
+            else{
+                this.gridInfoWrappedMap.pause.setText("Stop");
+                this.wrappedMapEngine.resume();
+            }
+        });
+
+        this.gridInfoBoundedMap.pause.setOnAction(event -> {
+            if (!boundedMapEngine.isPaused()) {
+                this.gridInfoBoundedMap.pause.setText("Resume");
+                this.boundedMapEngine.pause();
+            }
+            else{
+                this.gridInfoBoundedMap.pause.setText("Stop");
+                this.boundedMapEngine.resume();
+            }
+        });
     }
 }
