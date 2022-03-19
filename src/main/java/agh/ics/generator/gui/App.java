@@ -32,7 +32,7 @@ public class App extends Application implements IAnimalMoveObserver {
     Thread simulationEngineThreadBoundedMap;
 
     int screenWidth = 1500;
-    int screenHeight = 900;
+    int screenHeight = 800;
     int mapWidth;
     int mapHeight;
     int fieldWidth;
@@ -71,7 +71,13 @@ public class App extends Application implements IAnimalMoveObserver {
         Button button = new Button("Start");
         InputSettings input = new InputSettings(button);
 
+        Scene scene = new Scene(input.getTilePane(), 400, 400);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
         button.setOnAction(action -> {
+            primaryStage.close();
+
             setInputSettings(input);
 
             this.wrappedMap = new WrappedGrassField(this.jungleRatio,this.mapWidth,this.mapHeight,
@@ -90,8 +96,8 @@ public class App extends Application implements IAnimalMoveObserver {
             wrappedMapEngine.addObserver(this);
             boundedMapEngine.addObserver(this);
 
-            Scene scene = new Scene(this.gridPaneContainer,this.screenWidth,this.screenHeight);
-            primaryStage.setScene(scene);
+            Scene new_scene = new Scene(this.gridPaneContainer,this.screenWidth,this.screenHeight);
+            primaryStage.setScene(new_scene);
             primaryStage.show();
             this.simulationEngineThreadWrappedMap.start();
             this.simulationEngineThreadBoundedMap.start();
@@ -99,9 +105,6 @@ public class App extends Application implements IAnimalMoveObserver {
             buttonsHandler();
 
         });
-        Scene scene = new Scene(input.getTilePane(), 400, 400);
-        primaryStage.setScene(scene);
-        primaryStage.show();
 
 
     }

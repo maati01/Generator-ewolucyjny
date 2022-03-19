@@ -36,8 +36,7 @@ public class MiddleGridPaneInfo extends GridPane {
 
     public void setLabelParameters(){
         this.mapTitle.setAlignment(Pos.CENTER);
-        this.mapTitle.setMaxSize(200,100);
-        this.mapTitle.setFont(new Font(25));
+        this.mapTitle.setFont(new Font(23));
     }
 
     public void createGrid(){
@@ -48,7 +47,7 @@ public class MiddleGridPaneInfo extends GridPane {
         normalEvolution.setPadding(new Insets(5,0,5,0));
         magicEvolution.setPadding(new Insets(5,0,5,0));
 
-        this.add(mapTitle,0,0,5,1);
+        this.add(mapTitle,0,0);
         this.add(box,0,1);
         this.add(normalEvolution,0,2);
         this.add(magicEvolution,0,3);

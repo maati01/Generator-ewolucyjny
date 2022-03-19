@@ -27,13 +27,13 @@ public class InputSettings extends Parent {
     private final HBox numberOfStartingAnimalsBox;
 
     public InputSettings(Button button){
-        this.width = new TextField("20");
-        this.height = new TextField("20");
-        this.startEnergy = new TextField("100");
+        this.width = new TextField("8");
+        this.height = new TextField("8");
+        this.startEnergy = new TextField("20");
         this.moveEnergy = new TextField("1");
-        this.plantEnergy = new TextField("100");
+        this.plantEnergy = new TextField("5");
         this.jungleRatio = new TextField("0.4");
-        this.numberOfStartingAnimals = new TextField("20");
+        this.numberOfStartingAnimals = new TextField("5");
 
         Label widthLabel = new Label("Width: ");
         Label heightLabel = new Label("Height: ");
