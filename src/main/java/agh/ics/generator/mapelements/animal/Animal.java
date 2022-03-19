@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import static java.lang.Math.max;
+
 public class Animal extends AbstractWorldMapElement {
     private MapDirection vector;
     private Vector2d position;
@@ -174,7 +176,7 @@ public class Animal extends AbstractWorldMapElement {
     }
 
     public void updateEnergy(){
-        this.energy -= this.map.getMoveEnergy();
+        this.energy = max(this.energy-this.map.getMoveEnergy(),0);
     }
 
     public int pickMove(){
